@@ -3,7 +3,7 @@ import 'package:intro_views_flutter/Models/page_view_model.dart';
 import 'package:intro_views_flutter/intro_views_flutter.dart';
 import 'package:flutter/services.dart';
 import 'home.dart';
-import 'testing.dart';
+import 'search.dart';
 import 'package:provider/provider.dart';
 import 'states.dart';
 
@@ -79,7 +79,7 @@ class App extends StatelessWidget {
 
 
  home: ChangeNotifierProvider<States>(
-        builder: (_) => States(0),
+        builder: (_) => States(0,0),
         child: status?new AppHome(): Builder(
         
         builder: (context) => IntroViewsFlutter(

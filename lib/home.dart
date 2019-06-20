@@ -6,6 +6,10 @@ import 'Cart.dart';
 import 'myorders.dart';
 import 'package:provider/provider.dart';
 import 'states.dart';
+import 'productlist.dart';
+import 'wallet.dart';
+import 'search.dart';
+
 class AppHome extends StatefulWidget {
 
   @override
@@ -40,7 +44,33 @@ class _AppHomeState extends State<AppHome> with SingleTickerProviderStateMixin{
 
 
 
-
+void _showDialog() {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Do you want to Logout?"),
+          // content: new Text("Alert Dialog body"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("LOGOUT"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ), new FlatButton(
+              child: new Text("CANCEL"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
 
 
@@ -67,22 +97,25 @@ List<Widget> _widgetOptions = <Widget>[
       appBar: new AppBar(
         
         
-        title: search? new TextField(
-          // controller: _filter,
-          style: new TextStyle(color: Colors.white,fontSize: 18),
-          decoration: new InputDecoration(
+        title:
+        //  search? new TextField(
+        //   // controller: _filter,
+        //   style: new TextStyle(color: Colors.white,fontSize: 18),
+        //   decoration: new InputDecoration(
            
-            hintText: 'Search...',
-            fillColor: Colors.white,
-            hintStyle: TextStyle(color: Colors.white70),
-             focusedBorder: UnderlineInputBorder( 
+        //     hintText: 'Search...',
+        //     fillColor: Colors.white,
+        //     hintStyle: TextStyle(color: Colors.white70),
+        //      focusedBorder: UnderlineInputBorder( 
                     
-                      borderSide: BorderSide(color: Colors.red[400]),   
-                      ),    
-          ),
+        //               borderSide: BorderSide(color: Colors.red[400]),   
+        //               ),    
+        //   ),
 
           
-        ):Text("Shopright"),
+        // ):
+
+        Text("Shopright"),
         
 //         GestureDetector(
 // child:     Container(
@@ -127,9 +160,12 @@ List<Widget> _widgetOptions = <Widget>[
               ):new IconButton(icon: new Icon(Icons.search),
               onPressed: (){
 
-                setState(() {
-                 search=true; 
-                });
+                // setState(() {
+                //  search=true; 
+                // });
+
+                  SearchView().showMaterialSearch(context);
+
               },
               ),
 
@@ -256,7 +292,7 @@ List<Widget> _widgetOptions = <Widget>[
              onTap: () {
                 Navigator.of(context).pop();
               //  counter.stateSet(3);
-                Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new ProductList()));
+                Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new MyOrders()));
               }
             ),
 
@@ -267,7 +303,12 @@ List<Widget> _widgetOptions = <Widget>[
               leading: Icon(Icons.favorite,color: Colors.pink,),
               title: new Text("Wishlist",style: new TextStyle(fontSize: 17,color: Colors.brown),),
              onTap: () {
-                //Navigator.of(context).pop();
+               counter.dropdownSet(4);
+
+                Navigator.of(context).pop();
+
+                Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new ProductList()));
+
                 // Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new OtherPage("First Page")));
               }
             ),
@@ -286,8 +327,8 @@ new ListTile(
               leading: Icon(Icons.attach_money,color:Colors.deepPurple),
               title: new Text("My Wallet",style: new TextStyle(fontSize: 17,color: Colors.brown),),
              onTap: () {
-                //Navigator.of(context).pop();
-                // Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new OtherPage("First Page")));
+                Navigator.of(context).pop();
+                Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new Wallet()));
               }
             ),
 
@@ -303,9 +344,12 @@ new ListTile(
               leading: Icon(Icons.arrow_back,color: Colors.red,),
               title: new Text("Logout",style: new TextStyle(fontSize: 17,color: Colors.brown),),
              onTap: () {
-                //Navigator.of(context).pop();
-                // Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new OtherPage("First Page")));
-              }
+                Navigator.of(context).pop();
+               
+               _showDialog();
+               
+               
+                }
             ),
 
 new Padding(padding: EdgeInsets.only(bottom: 20),)

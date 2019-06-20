@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 
 class States with ChangeNotifier {
-  int _counter =1;
+  int _counter,dropdown;
 
-  States(this._counter);
+  States(this._counter,this.dropdown);
 
   getStates() => _counter;
+
+  getDropdown()=>dropdown;
   getCountr() => _counter;
   setStates(int counter) => _counter = counter;
+  setDropdown(int drop) => dropdown = drop;
 
   void stateSet(no) {
     _counter=no;
     notifyListeners();
   }
 
-  void decrement() {
-    _counter--;
+  void dropdownSet(no) {
+    dropdown=no;
     notifyListeners();
   }
 }

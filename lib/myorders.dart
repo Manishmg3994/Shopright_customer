@@ -19,19 +19,14 @@ class MyOrdersState extends State<MyOrders> {
        return new Scaffold(
 
          backgroundColor: Colors.grey[200],
+
+
         // key: _scaffoldKey,
-        // appBar: AppBar(
-        //   leading: IconButton(
-        //     icon: Icon(_backIcon()),
-        //     alignment: Alignment.centerLeft,
-        //     tooltip: 'Back',
-        //     onPressed: () {
-        //       Navigator.pop(context);
-        //     },
-        //   ),
-        //   title: Text(toolbarname),
-        //   backgroundColor: Colors.white,
-        // ),
+        appBar: AppBar(
+          
+          title: Text('My Orders'),
+          
+        ),
 
 
 
@@ -202,7 +197,64 @@ class MyOrdersState extends State<MyOrders> {
                               //   ),
                                 Container(
                                  child:_status(order[ind])
-                                )
+                                ),
+
+ new ExpansionTile(
+
+                  title: new Text("View Products"),
+
+children: <Widget>[
+        Table(
+                                   border: TableBorder.all(width: 0.2, color: Colors.grey),
+                                  
+                                  children: [
+
+                                    
+                          
+  TableRow(
+  
+    children: [
+    Text("Name",style: new TextStyle(fontWeight: FontWeight.bold,fontSize: 16,color: Colors.brown),textAlign: TextAlign.center,),
+
+        Text("qty",style: new TextStyle(fontWeight: FontWeight.bold,fontSize: 16,color: Colors.brown),textAlign: TextAlign.center,),
+    Text("MRP.",style: new TextStyle(fontWeight: FontWeight.bold,fontSize: 16,color: Colors.brown),textAlign: TextAlign.center,),
+    Text("off.",style: new TextStyle(fontWeight: FontWeight.bold,fontSize: 16,color: Colors.brown),textAlign: TextAlign.center,),
+
+  ]),
+  TableRow(children:[
+     Text("apple",style: new TextStyle(),textAlign: TextAlign.center,),
+    Text("3",style: new TextStyle(),textAlign: TextAlign.center,),
+    Text("67",style: new TextStyle(),textAlign: TextAlign.center,),
+    Text("20%",style: new TextStyle(),textAlign: TextAlign.center,),
+  ]), 
+
+   TableRow(children:[
+     Text("apple",style: new TextStyle(),textAlign: TextAlign.center,),
+    Text("3",style: new TextStyle(),textAlign: TextAlign.center,),
+    Text("67",style: new TextStyle(),textAlign: TextAlign.center,),
+    Text("20%",style: new TextStyle(),textAlign: TextAlign.center,),
+  ]),  TableRow(children:[
+     Text("apple",style: new TextStyle(),textAlign: TextAlign.center,),
+    Text("3",style: new TextStyle(),textAlign: TextAlign.center,),
+    Text("67",style: new TextStyle(),textAlign: TextAlign.center,),
+    Text("20%",style: new TextStyle(),textAlign: TextAlign.center,),
+  ]),  TableRow(children:[
+     Text("apple",style: new TextStyle(),textAlign: TextAlign.center,),
+    Text("3",style: new TextStyle(),textAlign: TextAlign.center,),
+    Text("67",style: new TextStyle(),textAlign: TextAlign.center,),
+    Text("20%",style: new TextStyle(),textAlign: TextAlign.center,),
+  ]), 
+]),
+
+Padding(padding: EdgeInsets.all(10),)
+],
+ ),
+
+// Align(alignment: Alignment.center,child: 
+
+
+// )
+                        
                               ],
                             ))))),
               ]));

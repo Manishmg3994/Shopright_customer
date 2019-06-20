@@ -1,7 +1,10 @@
 
 import 'package:flutter/material.dart';
 import 'Cart.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import 'package:provider/provider.dart';
+import 'states.dart';
 
 enum Departments { Production, Research, Purchasing, Marketing, Accounting }
  
@@ -24,27 +27,31 @@ Future<Departments> _asyncSimpleDialog(BuildContext context) async {
 
             new ListTile(
   
-              leading: Icon(Icons.info),
-              title: new Text("",style: new TextStyle(fontSize: 16,fontWeight: FontWeight.bold,),),
+              leading: Icon(Icons.person),
+              title: new Text("Murali",style: new TextStyle(fontSize: 16,fontWeight: FontWeight.bold,),),
             
             ),
 
             new ListTile(
   
-              leading: Icon(Icons.info,color:Colors.yellowAccent[800]),
-              title: new Text("Vendor Info",style: new TextStyle(fontSize: 16,fontWeight: FontWeight.bold,),),
+              leading: Icon(Icons.phone,color:Colors.yellowAccent[800]),
+              title: new Text("+918870970677",style: new TextStyle(fontSize: 16,fontWeight: FontWeight.bold,),),
+            trailing: new Text('Call Now'),
+            onTap: (){
+
+              launch("tel:8870970677");
+            },
+            ),
+ new ListTile(
+  
+              leading: Icon(Icons.place,color:Colors.yellowAccent[800]),
+              title: new Text("636451",style: new TextStyle(fontSize: 16,fontWeight: FontWeight.bold,),),
             
             ),
  new ListTile(
   
-              leading: Icon(Icons.info,color:Colors.yellowAccent[800]),
-              title: new Text("Vendor Info",style: new TextStyle(fontSize: 16,fontWeight: FontWeight.bold,),),
-            
-            ),
- new ListTile(
-  
-              leading: Icon(Icons.info,color:Colors.yellowAccent[800]),
-              title: new Text("Vendor Info",style: new TextStyle(fontSize: 16,fontWeight: FontWeight.bold,),),
+              leading: Icon(Icons.location_city,color:Colors.yellowAccent[800]),
+              title: new Text("Second Street",style: new TextStyle(fontSize: 16,fontWeight: FontWeight.bold,),),
             
             ),
 
@@ -69,16 +76,20 @@ class ProductView extends StatefulWidget {
 }
 
 class ProductViewState extends State<ProductView> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+   GlobalKey<ScaffoldState> _scaffoldKey3 = new GlobalKey<ScaffoldState>();
 
 
 
 var search = false;
-
+var qty=1;
 
 @override
+
   Widget build(BuildContext context) {
 
+//  final counter = Provider.of<States>(context);
+
+//    print(counter.toString());
     return new Scaffold(
 
             appBar: new AppBar(
@@ -99,7 +110,7 @@ var search = false;
                   children: <Widget>[
                     new IconButton(icon: new Icon(Icons.shopping_cart),
                       onPressed: () {
-                        _scaffoldKey.currentState.openEndDrawer();
+                        _scaffoldKey3.currentState.openEndDrawer();
                       },
                     ),
                   
@@ -165,13 +176,21 @@ body:
               new SingleChildScrollView(child:
                 new Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
 
+Hero(
 
-                  new Center  ( child:
+  tag: 'imgsr',
+
+  child:  new Center  ( child:
 
 
                   Image.asset('assets/sr_logo.png',
             fit: BoxFit.fill,
-          ),),
+          ),
+          
+          
+          ),
+),
+                 
 
 
 
@@ -213,12 +232,41 @@ mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           new Row(children: <Widget>[
                             new InkWell(
                               child: new Icon(Icons.remove, size: 25,color: Colors.redAccent,),
-                              onTap:()=> print('object')
+                              onTap:(){
+                                
+                                
+                              
+                              
+                               if(qty<=1){
+                                 setState(() {
+                               qty=1;
+                              });
+                              
+                              }
+
+                              else{
+
+                                {setState(() {
+                               qty--; 
+                              });}
+                              }
+                              
+                              
+                              }
                             ),
-                            new Padding(padding: EdgeInsets.symmetric(horizontal: 40), child: new Text('1', style: TextStyle(fontSize: 20))),
+                            new Padding(padding: EdgeInsets.symmetric(horizontal: 40), child: new Text(qty.toString(), style: TextStyle(fontSize: 22))),
                             new InkWell(
                               child: new Icon(Icons.add, size: 25,color: Colors.green,),
-                              // onTap: _increment,
+                              onTap: (){
+                                
+                                  setState(() {
+                               qty++; 
+                              });
+                              
+                             
+
+                             
+                              },
                             ),
                           ]),
                         ),
@@ -230,7 +278,7 @@ mainAxisAlignment: MainAxisAlignment.spaceEvenly,
 
 
 
-  new Text('₹ 54.00',style: new TextStyle(fontSize: 35,color: Colors.brown),textAlign: TextAlign.center,)
+  new Text('₹ '+(54.00*qty).toString(),style: new TextStyle(fontSize: 35,color: Colors.brown),textAlign: TextAlign.center,)
 ],
 
 
@@ -254,15 +302,15 @@ new ListTile(
               title: new Text("Vendor Info",style: new TextStyle(fontSize: 16,fontWeight: FontWeight.bold,),),
              onTap: 
              
-            //  () async {
-            //     final Departments deptName = await _asyncSimpleDialog(context);
-            //     print("Selected Departement is $deptName");
-            //   },
+             () async {
+                final Departments deptName = await _asyncSimpleDialog(context);
+                print("Selected Departement is $deptName");
+              },
 
-()=> SimpleDialog(children: <Widget>[
+// ()=> SimpleDialog(children: <Widget>[
 
-  new Text("tcvrt")
-],)
+//   new Text("tcvrt")
+// ],)
 
             ),
 

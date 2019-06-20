@@ -5,6 +5,8 @@ import 'productview.dart';
 
 import 'package:provider/provider.dart';
 import 'states.dart';
+
+
 class ProductList extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -13,7 +15,6 @@ class ProductList extends StatefulWidget {
 }
 
 class ProductListState extends State<ProductList> {
-
 
  List _fruits = ["Vegetable", "Grocery", "Fruits","Wishlist", "Discount Offer", "Cashback Offer"];
 
@@ -44,19 +45,17 @@ class ProductListState extends State<ProductList> {
   }
 
 
-
-
-
-
-
-
-
-
 var search = false;
 
   var ty =['fgvdxrvdx ddx xdgrxc dx','cgdvgdfb ','hjghfh uhnuuu ','jhgjjb jugnugjy ujutuj7t ','fghyybyg'];
   @override
   Widget build(BuildContext context) {
+
+       
+        // final counter = Provider.of<States>(context);
+
+    // _selectedFruit = _dropDownMenuItems[counter.getCountr()].value;
+
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
     return new Scaffold(
@@ -211,12 +210,13 @@ child:new GridView.builder(
         gridDelegate:
             new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2,
             
-             childAspectRatio: MediaQuery.of(context).size.width /
-              (MediaQuery.of(context).size.height/1.30 ),
+             childAspectRatio: MediaQuery.of(context).size.height/880,
               
               ),
         itemBuilder: (BuildContext context, int index) {
-          return new GestureDetector(
+          return 
+          
+          new GestureDetector(
 
 child:new Column(
 
@@ -239,12 +239,31 @@ child: new Column(
 
 
   children: <Widget>[
-    Padding(padding: EdgeInsets.only(top: 25),),
- Image.asset('assets/sr_logo.png',
+
+
+
+    Padding ( padding: EdgeInsets.only(top: 25),),
+
+
+
+// Hero(
+
+//   tag: 'imgsr',
+
+
+
+Image.asset('assets/sr_logo.png',
             fit: BoxFit.fill,
          
           //  height: 100,
           ),
+
+// ),
+ 
+
+
+
+
     Padding(padding: EdgeInsets.only(top: 15),),
 
          
