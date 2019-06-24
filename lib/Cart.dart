@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'conformorder.dart';
 
 
 class CartView extends StatefulWidget {
@@ -355,6 +356,9 @@ color: Colors.red,
                     child: new RaisedButton(
                       onPressed: () {
                         Navigator.of(context).pop();
+                   Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new ConfirmOrderPage()));
+
+
                         (1 == 0) ? print("no items") : print("yes");
                       },
                       child: (1 == 0) ? new Text("Start Shopping") : new Text("Checkout"),

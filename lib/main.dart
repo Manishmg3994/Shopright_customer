@@ -4,18 +4,92 @@ import 'package:intro_views_flutter/intro_views_flutter.dart';
 import 'package:flutter/services.dart';
 import 'home.dart';
 import 'search.dart';
-import 'package:provider/provider.dart';
-import 'states.dart';
+// import 'package:provider/provider.dart';
+// import 'states.dart';
+import 'package:scoped_model/scoped_model.dart';
+import 'scopedmodel.dart';
+import 'grouphome.dart';
+import 'groupview.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// This is the main method of app, from here execution starts.
 void main() => runApp(App());
 
 /// App widget class
 
-class App extends StatelessWidget {
-  //making list of pages needed to pass in IntroViewsFlutter constructor.
 
-  var status=true;
+
+
+
+class App extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return _AppState();
+  }
+}
+
+
+class _AppState extends State<App> {
+getSharedPreferences() async {
+// CounterModel model = ScopedModel.of(context);
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+   print(prefs.getBool("islogin"));
+if(prefs.getBool("islogin")==null){
+// model.setLogin(false);
+setState(() {
+ status=false; 
+});
+}
+
+else{
+// model.setLogin(prefs.getBool("islogin"));
+
+print('hjcfjr');
+setState(() {
+ status=true; 
+});
+}
+   
+  }
+
+  var status=false;
+  @override
+ 
+  void initState() {
+  // now I can do with the model whatever I need to do:
+  // Text someVar = model.initialText;
+  
+    getSharedPreferences();
+    super.initState();
+  }
+
+
+ 
+  @override
+  Widget build(BuildContext context) {
+// CounterModel model = ScopedModel.of(context);
+
+  return ScopedModel<CounterModel>(
+      model: CounterModel(),
+      child:  MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'ShopRight', //title of app
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+     
+        fontFamily: 'JosefinSans',
+      
+      ), 
+ home:status?new AppHome(): new Intro()
+      ),
+
+    );
+  }
+}
+
+class Intro extends StatelessWidget {
+ @override
   final pages = [
     PageViewModel(
         pageColor: const Color(0xFF03A9F4),
@@ -64,23 +138,11 @@ class App extends StatelessWidget {
     ),
   ];
 
-  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'ShopRight', //title of app
-       
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-     
-        fontFamily: 'JosefinSans',
-      
-      ), //ThemeData
+ return Scaffold(
 
 
- home: ChangeNotifierProvider<States>(
-        builder: (_) => States(0,0),
-        child: status?new AppHome(): Builder(
+    body:  Builder(
         
         builder: (context) => IntroViewsFlutter(
          
@@ -88,7 +150,7 @@ class App extends StatelessWidget {
             showSkipButton:false, 
             doneText:Text("Go Shop"),
               onTapDoneButton: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                     builder: (context) => HomePage(),
@@ -100,29 +162,39 @@ class App extends StatelessWidget {
                 fontSize: 18.0,
               ),
             ), //IntroViewsFlutter
-      ), //Build
-      
-      
-      
-      
-      
       ),
+  );
+  }}
 
 
 
-      // home:
-      
-     
-    ); //Material App
-  }
-}
 
-/// Home Page of our example app.
+
+
+
+
+
+
+
+
+
+
 
 
 class HomePage extends StatelessWidget {
+
+
+
+
+_saveValues(io) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool("islogin",io);
+  }
+
  @override
   Widget build(BuildContext context) {
+// CounterModel model = ScopedModel.of(context);
+
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: Color.fromRGBO(85, 102, 81,10),
     ));
@@ -218,7 +290,15 @@ Padding(
                           borderRadius: BorderRadius.circular(30),
                         ),
                         color: Color.fromRGBO(244, 92, 31, 1),
-                        onPressed: () => null,
+                        onPressed: (){
+
+
+                              _saveValues(true);
+                      // model.setLogin(true);
+
+                Navigator.of(context).pushReplacement(new MaterialPageRoute(builder: (BuildContext context) => new AppHome()));
+
+                        },
                         child: new Text(
                           "Login",
                           style: TextStyle(color: Colors.white),

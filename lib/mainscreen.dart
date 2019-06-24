@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'productview.dart';
+import 'productview.dart'; 
 import 'productlist.dart';
 import 'myorders.dart';
 import 'package:quiver/async.dart';
 import 'package:gradient_widgets/gradient_widgets.dart';
+import 'scopedmodel.dart';
+import 'package:scoped_model/scoped_model.dart';
 
-import 'package:provider/provider.dart';
-import 'states.dart';
+// import 'package:provider/provider.dart';
+// import 'states.dart';
 final List<String> imgList = [
   'http://www.lingandsons.com/readBlob.do?id=5431',
   'https://5210.psu.edu/wp-content/uploads/2018/05/food-fruits-veggies-shopping.jpg',
@@ -70,7 +72,7 @@ class MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
 
     
-        final counter = Provider.of<States>(context);
+        // final counter = Provider.of<States>(context);
     return new MaterialApp(
     debugShowCheckedModeBanner: false,
 
@@ -207,7 +209,15 @@ Padding(padding: EdgeInsets.only(right: 20)),
 //       ],
 //     )
 // ),),
-          
+             ScopedModelDescendant<CounterModel>(
+              builder: (context, child, model) {
+
+                
+return RaisedButton(
+  onPressed: ()=> model.increment,
+);
+
+              }),
 Padding(padding: EdgeInsets.all(5),),
 
               CarouselSlider(
@@ -301,12 +311,23 @@ padding: EdgeInsets.only(top:15),
 ],)),), 
 ),
 
+        ScopedModelDescendant<CounterModel>(
+              builder: (context, child, model) {
 
+                
+return RaisedButton(
+  onPressed: ()=> model.increment,
+);
+
+              }),
 
 GestureDetector(
                 onTap: (){ 
                   
-                  Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new ProductList()));
+
+
+                  
+                  // Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new ProductList()));
  },
   child:  Card(
 

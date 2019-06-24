@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'Cart.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'package:provider/provider.dart';
-import 'states.dart';
+// import 'package:provider/provider.dart';
+// import 'states.dart';
 
 enum Departments { Production, Research, Purchasing, Marketing, Accounting }
  

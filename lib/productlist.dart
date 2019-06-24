@@ -2,9 +2,11 @@
 import 'package:flutter/material.dart';
 import 'Cart.dart';
 import 'productview.dart';
-
-import 'package:provider/provider.dart';
-import 'states.dart';
+import 'search.dart';
+import 'scopedmodel.dart';
+import 'package:scoped_model/scoped_model.dart';
+// import 'package:provider/provider.dart';
+// import 'states.dart';
 
 
 class ProductList extends StatefulWidget {
@@ -26,7 +28,17 @@ class ProductListState extends State<ProductList> {
   @override
   void initState() {
     _dropDownMenuItems = buildAndGetDropDownMenuItems(_fruits);
-    _selectedFruit = _dropDownMenuItems[0].value;
+
+//      ScopedModelDescendant<CounterModel>(
+//               builder: (context, child, model) {
+// print('object');
+//               });
+
+CounterModel model = ScopedModel.of(context);
+// print(model.productlist.toString());
+// model.setProductlist(3);
+    _selectedFruit = _dropDownMenuItems[model.productlist].value;
+
     super.initState();
   }
 
@@ -98,10 +110,11 @@ backgroundColor: Colors.grey[200],
               },
               ):new IconButton(icon: new Icon(Icons.search),
               onPressed: (){
+                  SearchView().showMaterialSearch(context);
 
-                setState(() {
-                 search=true; 
-                });
+                // setState(() {
+                //  search=true; 
+                // });
               },
               ),
 
@@ -128,7 +141,7 @@ backgroundColor: Colors.grey[200],
                       
                       top: 4.0,
                       right: 5.0,
-                      child: new Text(74.toString(),
+                      child: new Text(12.toString(),
                       
                       textAlign: TextAlign.center,
                       
