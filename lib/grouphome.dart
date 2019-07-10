@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'groupview.dart';
 
 import 'package:gradient_widgets/gradient_widgets.dart';
 
@@ -21,7 +22,18 @@ class GroupHome extends StatelessWidget{
                   
                   
                   Padding(padding: EdgeInsets.all(10),child: 
-                                 GradientCard(
+
+GestureDetector(
+
+  onTap: (){
+                Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new GroupView()));
+
+
+
+
+  },
+
+  child:        GradientCard(
                                     shape: RoundedRectangleBorder(
                 borderRadius:BorderRadius.only(topLeft: const Radius.circular(40.0),bottomRight: const Radius.circular(40.0),),
               ),
@@ -39,7 +51,13 @@ class GroupHome extends StatelessWidget{
 ),),
 )
                   
-                  ,);
+),
+
+
+
+
+                         
+                  );
                   
    
                 }

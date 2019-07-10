@@ -11,7 +11,7 @@ import 'scopedmodel.dart';
 import 'grouphome.dart';
 import 'groupview.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:dio/dio.dart';
 /// This is the main method of app, from here execution starts.
 void main() => runApp(App());
 
@@ -184,7 +184,15 @@ class Intro extends StatelessWidget {
 class HomePage extends StatelessWidget {
 
 
-
+void getHttp() async {
+  print("response");
+  try {
+    Response response = await Dio().get("http://www.google.com");
+    print(response);
+  } catch (e) {
+    print(e);
+  }
+}
 
 _saveValues(io) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -271,7 +279,7 @@ Padding(
                 new Padding(
                     padding: EdgeInsets.symmetric(horizontal: 25),
                     child: new FlatButton(
-                      onPressed: () => null,
+                      onPressed: () => getHttp(),
                       child: new Align(
                         alignment: Alignment.centerRight,
                         child: new Text(
@@ -293,10 +301,9 @@ Padding(
                         onPressed: (){
 
 
-                              _saveValues(true);
-                      // model.setLogin(true);
+                              // _saveValues(true);
 
-                Navigator.of(context).pushReplacement(new MaterialPageRoute(builder: (BuildContext context) => new AppHome()));
+                // Navigator.of(context).pushReplacement(new MaterialPageRoute(builder: (BuildContext context) => new AppHome()));
 
                         },
                         child: new Text(
@@ -356,10 +363,234 @@ class Register extends StatefulWidget {
 
 
 class _MyAppState extends State<Register> {
+  List areas = new List();
+String base_url = "";
+
+   @override
+  void initState() {
+   
+CounterModel model = ScopedModel.of(context);
+setState(() {
+  base_url = model.url;
+});
+
+    super.initState();
+  }
+
   @override
 
-  var show=false;
-var form=false;
+void checkno(context) async {
+  try {
+    Response response = await Dio().post(base_url+"customer/check_mobile",data: {"mobile" : mobile});
+    print(response.data);
+    print(mobile);
+
+    if(response.data["status"])
+    {
+
+setState(() {
+     loading=false;  show_otp=true;
+mobile_otp=response.data["otp"].toString();
+mobile_enable=false;level=1;
+    });
+    }
+
+    else{
+ showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Number Already Exist"),
+          content: new Text("Try another number"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Ok"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+      
+setState(() {
+     loading=false; 
+      // mobile_check=true;
+// mobile="";
+    });
+
+
+    }
+    
+  } catch (e) {
+    print(e);
+  }
+}
+
+
+
+ void checkpin(context) async {
+  try {
+    Response response = await Dio().post(base_url+"customer/check_pincode",data: {
+ "pincode" : pincode
+ });
+   
+   print(response.data);
+     if(response.data["status"])
+    {
+
+setState(() {
+     loading=false;  area_field=true;
+level=3;
+btn="Register";
+
+     setState(() {
+      areas= response.data["area"];
+     });
+    });
+    }
+
+    else{
+ showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Not Available for this Pincode"),
+          // content: new Text("Try another number"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Ok"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+      
+setState(() {
+     loading=false; 
+     
+    });
+
+
+    }
+
+    
+  } catch (e) {
+    print(e);
+  }
+}
+
+
+
+
+
+ void create_account(context) async {
+
+  try {
+    Response response = await Dio().post(base_url+"customer/register",data: {
+ "mobile":mobile,
+"pincode": pincode,
+"area":areas[area_select],
+"name":name,
+"password":pass,
+ "mail":"no mail"
+ });
+   
+   print(response.data);
+   setState(() {
+    loading=false;
+   });
+     if(response.data["status"])
+    {
+ showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("congratulations...",style: new TextStyle(),
+          // textAlign: TextAlign.center,
+          ),
+          content: new Text("Your Account created successfully"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Login"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+
+    }
+
+    else{
+ showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Something Wrong..."),
+          content: new Text("Try again"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Ok"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+ }
+
+    
+  } catch (e) {
+    print(e);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+var level =0;
+  var show_otp=false,
+  mobile_otp="";
+ bool mobile_enable=true;
+  var loading=false;
+  var mobile="";
+  var enter_otp="";
+  int area_select= 0;
+  var area_changed= false;
+  var width_x =false;
+var pin_field=false;
+var area_field =false;
+var pincode="" ;
+var name = "";
+var pass ="";
+var con_pass ="";
+var mail="";
   var btn='Get OTP';
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -375,13 +606,12 @@ var form=false;
            child:   new ListView(
               children: <Widget>[
 
-
-
-
-
-Padding(padding: EdgeInsets.only(top:50),),
+Padding ( padding: EdgeInsets.only(top:50),),
  new Image.asset("assets/sr_logo.png",height: 100,width: 100,),
+Padding(padding: EdgeInsets.only(right:  MediaQuery.of(context).size.width * 0.22),
 
+child:Text(mobile_otp,style: new TextStyle(),textAlign: TextAlign.right,),
+ ),
   new Padding(
                     padding: EdgeInsets.fromLTRB(30, 30, 30, 5),
                     child: new Card(
@@ -389,46 +619,56 @@ Padding(padding: EdgeInsets.only(top:50),),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(60),
                       ),
-                      child: new TextFormField(
-                        decoration: const InputDecoration(
+                      child: new TextField(
+                                    keyboardType: TextInputType.number,
+
+                        decoration:  InputDecoration(
                             contentPadding: EdgeInsets.all(10),
                             filled: true,
                             fillColor: Color.fromRGBO(255, 255, 255, 1),
                             prefixIcon: const Icon(Icons.phone),
-                           
-                            labelText: 'Mobile No.',
+                           enabled: mobile_enable,
+                            hintText: 'Mobile No.',
                             errorBorder: OutlineInputBorder(
                                 borderSide: BorderSide(color: Colors.red)),
                             focusedBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
                                     color: Color.fromRGBO(244, 92, 31, 1),
                                    width: 2
-                                    
                                     )),
                             border: OutlineInputBorder(
                                 borderSide: BorderSide.none,
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(30)))),
+                     onChanged:(data){ setState(() {
+                      mobile= data.toString();
+                     });
+                     }
                       ),
                     )),
 
 
-
-            show?    new Padding(
+           show_otp ?    new Padding(
                     padding: EdgeInsets.symmetric(vertical: 5, horizontal: 30),
                     child: new Card(
                       elevation: 4.0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
-                      child: new TextFormField(
-                        decoration: const InputDecoration(
+                      child: new TextField(
+                         keyboardType: TextInputType.number,
+                         onChanged:(data){ setState(() {
+                      enter_otp= data.toString();
+                     });                  
+                     },
+                        decoration:  InputDecoration(
                             contentPadding: EdgeInsets.all(0),
                             filled: true,
                             fillColor: Color.fromRGBO(255, 255, 255, 1),
                             prefixIcon: const Icon(Icons.message),
-                           
-                            labelText: 'OTP',
+                           enabled: !pin_field,
+
+                           hintText: "OTP",
                             errorBorder: OutlineInputBorder(
                                 borderSide: BorderSide(color: Colors.red)),
                             focusedBorder: OutlineInputBorder(
@@ -453,21 +693,134 @@ Padding(padding: EdgeInsets.only(top:50),),
 
 
 
-            form?    new Padding(
+           pin_field?    new Padding(
                     padding: EdgeInsets.symmetric(vertical: 5, horizontal: 30),
                     child: new Card(
                       elevation: 4.0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
-                      child: new TextFormField(
-                        decoration: const InputDecoration(
+                      child: new TextField(
+                        keyboardType: TextInputType.number,
+                         onChanged:(data){ setState(() {
+                      pincode= data.toString();
+                     });
+                                   
+                                    
+                                      
+                     },
+
+                        decoration:  InputDecoration(
+                            contentPadding: EdgeInsets.all(0),
+                            filled: true,
+                           enabled: !area_field,
+                            fillColor: Color.fromRGBO(255, 255, 255, 1),
+                            prefixIcon: const Icon(Icons.gps_fixed),
+                           hintText: "Pincode",
+                            errorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.red)),
+                            focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  
+                                    color: Color.fromRGBO(244, 92, 31, 1),
+                                    
+                                          width: 2)),
+                            border: OutlineInputBorder(
+                                borderSide: BorderSide.none,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(30)))),
+                      ),
+                    ))
+                    
+                    
+                    :Padding(
+                      padding: EdgeInsets.all(1),
+                    ),
+
+            area_field?    new Padding(
+                    padding: EdgeInsets.symmetric(vertical: 5, horizontal: 30),
+                    child: new Card(
+                      elevation: 4.0,
+                      
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        
+                      ),
+                      // child:   InputDecorator(
+                      //   decoration: InputDecoration(
+                      //     icon: const Icon(Icons.color_lens),
+                      //   ),
+
+
+                        child: new DropdownButtonHideUnderline(
+                          
+   child: Row(
+mainAxisAlignment: MainAxisAlignment.spaceAround,
+     children: <Widget>[
+//  Icon(Icons.gps_fixed),
+       new Text("Select Area"),
+ new DropdownButton<String>(
+     value: area_changed? areas[area_select]:null,
+                items: areas.map(( value) {
+                  return new DropdownMenuItem<String>(
+                    value: value,
+                    child: new Text(value),
+                  );
+                }).toList(),
+                onChanged: (newValue) {
+  area_changed=true;
+
+                        //  _color = newValue;
+
+// print(areas.indexOf(newValue));
+setState(() {
+ area_select = areas.indexOf(newValue);
+});
+                },
+              ),
+     ],
+   )
+   
+   
+                       
+                       
+                       
+                        )
+                      )
+                    )
+                    
+                    // )
+                    
+                    
+                    :Padding(
+                      padding: EdgeInsets.all(1),
+                    ),
+
+
+
+      area_field?    new Padding(
+                    padding: EdgeInsets.symmetric(vertical: 5, horizontal: 30),
+                    child: new Card(
+                      elevation: 4.0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: new TextField(
+                        // keyboardType: TextInputType.number,
+                         onChanged:(data){ setState(() {
+                      name= data.toString();
+                     });
+                                   
+                                    
+                                      
+                     },
+
+                        decoration:  InputDecoration(
                             contentPadding: EdgeInsets.all(0),
                             filled: true,
                             fillColor: Color.fromRGBO(255, 255, 255, 1),
                             prefixIcon: const Icon(Icons.person),
-                           
-                            labelText: 'Name',
+                           hintText: "Name",
                             errorBorder: OutlineInputBorder(
                                 borderSide: BorderSide(color: Colors.red)),
                             focusedBorder: OutlineInputBorder(
@@ -487,61 +840,30 @@ Padding(padding: EdgeInsets.only(top:50),),
                     :Padding(
                       padding: EdgeInsets.all(1),
                     ),
-               
 
-               
-            form?    new Padding(
+                          area_field?    new Padding(
                     padding: EdgeInsets.symmetric(vertical: 5, horizontal: 30),
                     child: new Card(
                       elevation: 4.0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
-                      child: new TextFormField(
-                        decoration: const InputDecoration(
-                            contentPadding: EdgeInsets.all(0),
-                            filled: true,
-                            fillColor: Color.fromRGBO(255, 255, 255, 1),
-                            prefixIcon: const Icon(Icons.mail),
-                           
-                            labelText: 'Mail',
-                            errorBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.red)),
-                            focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  
-                                    color: Color.fromRGBO(244, 92, 31, 1),
+                      child: new TextField(
+                        // keyboardType: TextInputType.number,
+                         onChanged:(data){ setState(() {
+                      pass= data.toString();
+                     });
+                                   
                                     
-                                          width: 2)),
-                            border: OutlineInputBorder(
-                                borderSide: BorderSide.none,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(30)))),
-                      ),
-                    ))
-                    
-                    
-                    :Padding(
-                      padding: EdgeInsets.all(1),
-                    ),
-               
-
-    
-            form?    new Padding(
-                    padding: EdgeInsets.symmetric(vertical: 5, horizontal: 30),
-                    child: new Card(
-                      elevation: 4.0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      child: new TextFormField(
-                        decoration: const InputDecoration(
+                                      
+                     },
+obscureText:true,
+                        decoration:  InputDecoration(
                             contentPadding: EdgeInsets.all(0),
                             filled: true,
                             fillColor: Color.fromRGBO(255, 255, 255, 1),
                             prefixIcon: const Icon(Icons.vpn_key),
-                           
-                            labelText: 'Password',
+                           hintText: "Password",
                             errorBorder: OutlineInputBorder(
                                 borderSide: BorderSide(color: Colors.red)),
                             focusedBorder: OutlineInputBorder(
@@ -561,24 +883,31 @@ Padding(padding: EdgeInsets.only(top:50),),
                     :Padding(
                       padding: EdgeInsets.all(1),
                     ),
-               
 
-    
-            form?    new Padding(
+                          area_field?    new Padding(
                     padding: EdgeInsets.symmetric(vertical: 5, horizontal: 30),
                     child: new Card(
                       elevation: 4.0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
-                      child: new TextFormField(
-                        decoration: const InputDecoration(
+                      child: new TextField(
+                        // keyboardType: TextInputType.number,
+                         onChanged:(data){ setState(() {
+                     con_pass =data;
+                     });
+                                   
+                                    
+                                      
+                     },
+obscureText:true,
+
+                        decoration:  InputDecoration(
                             contentPadding: EdgeInsets.all(0),
                             filled: true,
                             fillColor: Color.fromRGBO(255, 255, 255, 1),
                             prefixIcon: const Icon(Icons.vpn_key),
-                           
-                            labelText: 'Confirm Password',
+                           hintText: "Conform Password",
                             errorBorder: OutlineInputBorder(
                                 borderSide: BorderSide(color: Colors.red)),
                             focusedBorder: OutlineInputBorder(
@@ -598,7 +927,12 @@ Padding(padding: EdgeInsets.only(top:50),),
                     :Padding(
                       padding: EdgeInsets.all(1),
                     ),
-               
+
+
+
+
+
+
 
 
 
@@ -611,7 +945,8 @@ Padding(padding: EdgeInsets.only(top:50),),
                     // padding: EdgeInsets.symmetric(vertical: 12, horizontal: 30),
                     padding: EdgeInsets.only(top:12,left:30,right: 30,bottom: 10),
                     child: new Container(
-                      width: double.infinity,
+                      // duration: Duration(seconds: 3),
+                      width:width_x? 55:double.infinity,
                       child: new RaisedButton(
                         padding: EdgeInsets.all(15.0),
                         shape: RoundedRectangleBorder(
@@ -623,33 +958,267 @@ Padding(padding: EdgeInsets.only(top:50),),
 
 
 
-                          if(show==false){
+                          if(level==0){
 
+                            if(mobile.length ==10){
 setState(() {
-                     show=true;
                      btn='Check OTP';
+                     loading=true;
                     });
+
+                    checkno(context);
+
+                            }
+    else{
+
+ showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Please enter valid 10 digit number"),
+          // content: new Text("Try another number"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Ok"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    }
+
 
                           }
 
 
-                         else{
+                         else if(level==1){
+
+                            if(enter_otp==mobile_otp){
+                            setState(() {pin_field=true;
+                            level=2;
+                                                btn='Check pincode';
+                                                });
+
+                            }
+
+                    else{
+
+showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Incorrect OTP"),
+          // content: new Text("Try another number"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Ok"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+
+                    }
+                    
+                    
+                     }
+
+  else if(level==2){
+
+if(pincode.length == 6){
+
+checkpin(context);
+setState(() {
+ loading=true; 
+});
+
+}
+
+   else{
+
+showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Incorrect Pincode"),
+          // content: new Text("Try another number"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Ok"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+                  }
+
+
+  }
+
+    else if(level==3){
+
+if(area_changed){
+
+if(name.length!=0){
 
 
 
 
-                    setState(() {form=true;
-                     btn='Register';
-                    });
+
+if(pass.length>=8){
+if(pass==con_pass){
+setState(() {
+  loading=true;
+});
+create_account(context);}
+else{
+  showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Password not matching"),
+          // content: new Text("Try another number"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Ok"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+}
 
 
-                          }
+}
 
-                         
-                    print(show);
+else{
+  showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Password required min. 8 character"),
+          // content: new Text("Try another number"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Ok"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+
+}
+
+
+
+
+
+
+
+
+
+}
+
+else{
+
+
+  showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Please enter Name"),
+          // content: new Text("Try another number"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Ok"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+ 
+}
+
+}
+else{
+
+showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Please select Area"),
+          // content: new Text("Try another number"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Ok"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+ 
+
+}
+
+
+// print(mobile);
+// print(pincode);
+// print(areas[area_select]);
+// print(name);
+// print(pass);
+
+
+
+
+
+    }
+             
                         },
-                        child: 
-                        // CircularProgressIndicator(backgroundColor: Colors.grey,)
+                        child: loading?
+                         SizedBox(
+                child: CircularProgressIndicator( valueColor: new AlwaysStoppedAnimation<Color>(Colors.green[200],),strokeWidth: 3.0),
+                height: 18.0,
+                width: 18.0,
+               
+              ):
                         
                         
                          new Text(

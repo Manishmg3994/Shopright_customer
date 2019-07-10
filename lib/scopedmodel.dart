@@ -22,6 +22,9 @@ class CounterModel extends Model {
 
 
 
+  String _url="http://ec2-13-233-141-122.ap-south-1.compute.amazonaws.com:9001/";
+
+  String get url =>_url;
 
 
 
