@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'conformorder.dart';
 
+import 'scopedmodel.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 class CartView extends StatefulWidget {
   @override
@@ -13,18 +15,21 @@ class CartView extends StatefulWidget {
 
 class CartViewState extends State<CartView> {
 
-var len = 1;
 var count = 2;
 
+
+// CounterModel model;
    @override
   void initState() {
-    
+// model= ScopedModel.of(context);
+//     print(stream.cart.toString());
+//     print(stream.cart[0].length.toString());
     super.initState();
   }
 
  @override
     Widget build(BuildContext context) {
-
+CounterModel stream= ScopedModel.of(context);
 
       return new Container(
         decoration:   BoxDecoration(
@@ -37,7 +42,7 @@ var count = 2;
             new Container(
               margin: EdgeInsets.only(top: MediaQuery.of(context).size.width * 0.1),
               child: new Center(
-                child: new Text("CART " + count.toString()),
+                child: new Text("MY CART "),
               ),
             ),
             new Divider(),
@@ -56,7 +61,7 @@ var count = 2;
 
 
 new ListView.builder(
-        itemCount: len,
+        itemCount: stream.cart[0].length,
        
         itemBuilder: (BuildContext context, int index) {
           return
@@ -93,11 +98,11 @@ children: <Widget>[
 
  Expanded(
           flex: 4, // 
-child: Image.asset('assets/sr_logo.png',
-            fit: BoxFit.fill,
+child: Image.network(stream.cart[0][index]["img_url"],
+            // fit: BoxFit.fill,
          
-          //  height: 100,
-          //  width: 100,
+           height: 80,
+           width: 80,
           ),
  ),
 
@@ -116,7 +121,7 @@ Align(
 
   alignment: Alignment.center,
 
-  child: new Text('Apple ', overflow: TextOverflow.ellipsis,style: new TextStyle(fontSize: 18,fontWeight: FontWeight.bold),
+  child: new Text(stream.cart[0][index]["name"], overflow: TextOverflow.ellipsis,style: new TextStyle(fontSize: 18,fontWeight: FontWeight.bold),
     maxLines: 2,),
 ),
 
@@ -131,9 +136,9 @@ mainAxisAlignment: MainAxisAlignment.spaceBetween,
   children: <Widget>[
 
 
-    Text('₹ 54.00'),
+    Text('₹ '+stream.cart[0][index]["price"].toString()),
 
-    Text('500g')
+    Text(stream.cart[0][index]["unit"])
   ],
 )),
 
@@ -217,15 +222,22 @@ color: Colors.green,
 
 
 Padding(padding: EdgeInsets.only(left: 15,right: 15),
-child: Text(count.toString(),style: new TextStyle(fontSize: 20),),),
+child: Text(stream.cart[0][index]["my_qty"].toString(),style: new TextStyle(fontSize: 20),),),
 
      SizedBox(
   width: 50, // specific value
   child: RaisedButton(
 color: Colors.red,
-        onPressed: ()=>{ setState(() {
-      count= count-1;
-    })},
+        onPressed: ()=>{
+
+          stream.RemoveCart(stream.cart[0][index]["product_id"])
+          
+    //        setState(() {
+    //   count= count-1;
+    // })
+    
+    
+    },
 
 
         child: Text('-',textAlign: TextAlign.center,style: new TextStyle(fontSize: 35,color: Colors.white),),

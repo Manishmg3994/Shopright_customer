@@ -34,8 +34,14 @@ getSharedPreferences() async {
 // CounterModel model = ScopedModel.of(context);
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-   print(prefs.getBool("islogin"));
-if(prefs.getBool("islogin")==null){
+  //  print(prefs.getBool("islogin"));
+  //   print("token " +prefs.getString("token"));
+  //   print("myid "+prefs.getString("myid"));
+  //   print("myname "+prefs.getString("myname"));
+  //   print("mobile "+prefs.getString("mobile"));
+  //   print("pincode "+prefs.getString("pincode"));
+  //   print("area "+prefs.getString("area"));
+if(prefs.getBool("islogin")==null || prefs.getBool("islogin")==false){
 // model.setLogin(false);
 setState(() {
  status=false; 
@@ -45,7 +51,7 @@ setState(() {
 else{
 // model.setLogin(prefs.getBool("islogin"));
 
-print('hjcfjr');
+// print('hjcfjr');
 setState(() {
  status=true; 
 });
@@ -181,23 +187,115 @@ class Intro extends StatelessWidget {
 
 
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
 
 
-void getHttp() async {
-  print("response");
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+
+  var mobile ="";
+  var pass ="";
+  String base_url = "";
+  var loading = false;
+
+  @override
+  void initState() {
+   
+CounterModel model = ScopedModel.of(context);
+setState(() {
+  base_url = model.url;
+});
+
+    super.initState();
+  }
+
+_saveValues(io,token,myid,myname,mobile,pincode,area,door,adr1,adr2) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool("islogin",io);
+    prefs.setString("token",token);
+    prefs.setString("myid",myid);
+    prefs.setString("myname",myname);
+    prefs.setString("mobile",mobile);
+    prefs.setString("pincode",pincode);
+    prefs.setString("area",area);
+    prefs.setString("door",door);
+    prefs.setString("adr1",adr1);
+    prefs.setString("adr2",adr2);
+
+
+
+  }
+
+void login(context) async {
   try {
-    Response response = await Dio().get("http://www.google.com");
-    print(response);
+    Response response = await Dio().post(base_url+"customer/login",data: {"mobile" : mobile,
+    "password":pass
+    
+    });
+    print(response.data);
+    
+
+
+
+
+    if(response.data["status"])
+    {
+    // print(response.data["result"]["name"]);
+_saveValues(true,response.data["token"],response.data["result"]["_id"],response.data["result"]["name"]
+,response.data["result"]["mobile"],response.data["result"]["pincode"],response.data["result"]["area"],response.data["result"]["door"]
+,response.data["result"]["adr1"],response.data["result"]["adr2"]
+);
+                Navigator.of(context).pushReplacement(new MaterialPageRoute(builder: (BuildContext context) => new AppHome()));
+
+
+setState(() {
+     loading=false;
+     
+
+
+
+    });
+   }
+
+    else{
+
+      setState(() {
+     loading=false; 
+   });
+ showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Incorrect Mobile/Password"),
+          // content: new Text("Try another number"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Ok"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+      
+
+
+
+    }
+    
   } catch (e) {
     print(e);
   }
 }
 
-_saveValues(io) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool("islogin",io);
-  }
+
 
  @override
   Widget build(BuildContext context) {
@@ -236,14 +334,20 @@ Padding(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
-                      child: new TextFormField(
+                      child: new TextField(
+                        onChanged: (data){
+                          setState(() {
+                           mobile=data; 
+                          });
+
+                        },
                         decoration: const InputDecoration(
                             contentPadding: EdgeInsets.all(0),
                             filled: true,
                             fillColor: Color.fromRGBO(255, 255, 255, 1),
-                            prefixIcon: const Icon(Icons.email),
-                            hintText: 'Enter your Email',
-                            labelText: 'Email',
+                            prefixIcon: const Icon(Icons.phone),
+                            hintText: 'Mobile No',
+                            // labelText: 'Email',
                             border: OutlineInputBorder(
                                 borderSide: BorderSide.none,
                                 borderRadius:
@@ -262,14 +366,22 @@ Padding(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
-                      child: new TextFormField(
+                      child: new TextField(
+obscureText:true,
+
+                          onChanged: (data){
+                          setState(() {
+                           pass=data; 
+                          });
+
+                        },
                         decoration: const InputDecoration(
                             contentPadding: EdgeInsets.all(0),
                             filled: true,
                             fillColor: Color.fromRGBO(255, 255, 255, 1),
                             prefixIcon: const Icon(Icons.vpn_key),
-                            hintText: 'Enter your Password',
-                            labelText: 'Password',
+                            hintText: 'Password',
+                            // labelText: 'Password',
                             border: OutlineInputBorder(
                                 borderSide: BorderSide.none,
                                 borderRadius:
@@ -279,7 +391,7 @@ Padding(
                 new Padding(
                     padding: EdgeInsets.symmetric(horizontal: 25),
                     child: new FlatButton(
-                      onPressed: () => getHttp(),
+                      // onPressed: () => (),
                       child: new Align(
                         alignment: Alignment.centerRight,
                         child: new Text(
@@ -300,13 +412,53 @@ Padding(
                         color: Color.fromRGBO(244, 92, 31, 1),
                         onPressed: (){
 
+                          if(mobile.length>=10 && pass.length>=6){
 
+                      setState(() {
+                          loading=true; 
+                          });
+                          login(context);
+
+                          }
+
+else{
+
+ showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Please enter valid Mobile/Password"),
+          // content: new Text("Try another number"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Ok"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+
+
+}
                               // _saveValues(true);
 
                 // Navigator.of(context).pushReplacement(new MaterialPageRoute(builder: (BuildContext context) => new AppHome()));
 
                         },
-                        child: new Text(
+                        child:loading?
+                         SizedBox(
+                child: CircularProgressIndicator( valueColor: new AlwaysStoppedAnimation<Color>(Colors.green[200],),strokeWidth: 3.0),
+                height: 18.0,
+                width: 18.0,
+               
+              ):
+                 new Text(
                           "Login",
                           style: TextStyle(color: Colors.white),
                         ),
@@ -341,15 +493,39 @@ Padding(
 
 
 
-
-
-
-
-
-
-
-
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -501,7 +677,10 @@ setState(() {
 "area":areas[area_select],
 "name":name,
 "password":pass,
- "mail":"no mail"
+ "mail":"no mail",
+ "door":door,
+ "adr1":adr1,
+ "adr2":adr2+".",
  });
    
    print(response.data);
@@ -573,7 +752,9 @@ setState(() {
 
 
 
-
+var door = "";
+var adr1 = "";
+var adr2 = " ";
 var level =0;
   var show_otp=false,
   mobile_otp="";
@@ -930,8 +1111,143 @@ obscureText:true,
 
 
 
+               area_field?    new Padding(
+                    padding: EdgeInsets.symmetric(vertical: 5, horizontal: 30),
+                    child: new Card(
+                      elevation: 4.0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: new TextField(
+                        // keyboardType: TextInputType.number,
+                         onChanged:(data){ setState(() {
+                     door =data;
+                     });
+                                   
+                                    
+                                      
+                     },
+// obscureText:true,
+
+                        decoration:  InputDecoration(
+                            contentPadding: EdgeInsets.all(0),
+                            filled: true,
+                            fillColor: Color.fromRGBO(255, 255, 255, 1),
+                            prefixIcon: const Icon(Icons.location_city),
+                           hintText: "Door No.",
+                            errorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.red)),
+                            focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  
+                                    color: Color.fromRGBO(244, 92, 31, 1),
+                                    
+                                          width: 2)),
+                            border: OutlineInputBorder(
+                                borderSide: BorderSide.none,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(30)))),
+                      ),
+                    ))
+                    
+                    
+                    :Padding(
+                      padding: EdgeInsets.all(1),
+                    ),
 
 
+
+
+
+               area_field?    new Padding(
+                    padding: EdgeInsets.symmetric(vertical: 5, horizontal: 30),
+                    child: new Card(
+                      elevation: 4.0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: new TextField(
+                        // keyboardType: TextInputType.number,
+                         onChanged:(data){ setState(() {
+                     adr1 =data;
+                     });
+                                   
+                                    
+                                      
+                     },
+// obscureText:true,
+
+                        decoration:  InputDecoration(
+                            contentPadding: EdgeInsets.all(0),
+                            filled: true,
+                            fillColor: Color.fromRGBO(255, 255, 255, 1),
+                            prefixIcon: const Icon(Icons.add_location),
+                           hintText: "Address line 1",
+                            errorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.red)),
+                            focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  
+                                    color: Color.fromRGBO(244, 92, 31, 1),
+                                    
+                                          width: 2)),
+                            border: OutlineInputBorder(
+                                borderSide: BorderSide.none,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(30)))),
+                      ),
+                    ))
+                    
+                    
+                    :Padding(
+                      padding: EdgeInsets.all(1),
+                    ),
+
+
+
+               area_field?    new Padding(
+                    padding: EdgeInsets.symmetric(vertical: 5, horizontal: 30),
+                    child: new Card(
+                      elevation: 4.0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: new TextField(
+                        // keyboardType: TextInputType.number,
+                         onChanged:(data){ setState(() {
+                     adr2 =data;
+                     });
+                                   
+                                    
+                                      
+                     },
+// obscureText:true,r
+
+                        decoration:  InputDecoration(
+                            contentPadding: EdgeInsets.all(0),
+                            filled: true,
+                            fillColor: Color.fromRGBO(255, 255, 255, 1),
+                            prefixIcon: const Icon(Icons.add_location),
+                           hintText: "Address line 2",
+                            errorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.red)),
+                            focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  
+                                    color: Color.fromRGBO(244, 92, 31, 1),
+                                    
+                                          width: 2)),
+                            border: OutlineInputBorder(
+                                borderSide: BorderSide.none,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(30)))),
+                      ),
+                    ))
+                    
+                    
+                    :Padding(
+                      padding: EdgeInsets.all(1),
+                    ),
 
 
 
@@ -946,7 +1262,7 @@ obscureText:true,
                     padding: EdgeInsets.only(top:12,left:30,right: 30,bottom: 10),
                     child: new Container(
                       // duration: Duration(seconds: 3),
-                      width:width_x? 55:double.infinity,
+                    //  width: 111.9,
                       child: new RaisedButton(
                         padding: EdgeInsets.all(15.0),
                         shape: RoundedRectangleBorder(
@@ -1083,11 +1399,27 @@ if(name.length!=0){
 
 
 if(pass.length>=8){
+
+
+
+
+
+
 if(pass==con_pass){
+
 setState(() {
   loading=true;
 });
-create_account(context);}
+
+create_account(context);
+
+}
+
+
+
+
+
+
 else{
   showDialog(
       context: context,

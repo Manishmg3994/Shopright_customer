@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
-import 'mainscreen.dart';
+import 'main.dart';
 import 'productlist.dart';
 import 'productview.dart';
 import 'Cart.dart';
 import 'myorders.dart';
+import 'location.dart';
+import 'dart:convert';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:grouped_buttons/grouped_buttons.dart';
 import 'grouphome.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:dio/dio.dart';
+import 'model/discount.dart';
+import 'model/youtubemodel.dart';
 
 // import 'package:provider/provider.dart';
 // import 'states.dart';
@@ -21,9 +29,34 @@ final List<String> imgList = [
   'https://5210.psu.edu/wp-content/uploads/2018/05/food-fruits-veggies-shopping.jpg',
   'https://foodrevolution.org/wp-content/uploads/2017/12/blog-featured-eat_the_rainbow_oranges-20171207.png',
   // 'https://images.jdmagicbox.com/comp/vijayawada/h6/0866px866.x866.170113004303.u4h6/catalogue/v-mart-siddhartha-nagar-vijayawada-grocery-stores-c7v48.jpg',
-  'https://breastcancer-news.com/wp-content/uploads/2018/07/shutterstock_793959790_zpsny04h5b8-1024x480.jpg'
+  // 'https://breastcancer-news.com/wp-content/uploads/2018/07/shutterstock_793959790_zpsny04h5b8-1024x480.jpg'
   
    ];
+   
+   final List<String> tyt = [
+
+
+  'http://www.lingandsons.com/readBlob.do?id=5431'
+    //  {image:'http://www.lingandsons.com/readBlob.do?id=5431',link:'http://www.lingandsons.com/readBlob.do?id=5431',
+    //  title:'http://www.lingandsons.com/readBlob.do?id=5431',
+    //  ch_name:'http://www.lingandsons.com/readBlob.do?id=5431'}
+
+
+
+//  { 
+//   "name": "ghg",
+//   "price": "ghg",
+//   "description": "ghg",
+//   "discount_amount": "ghg",
+//     "discount_percent":"ghg",
+  
+//   "unit": "json['unit']",
+//   "img_url": "json['img_url']",
+//   "on_move": "json['on_move']",
+//   "vendor_id":" json['vendor_id']",
+//   "product_id": "json['product_id']",
+//  }
+  ];
 // class AppHome extends StatefulWidget {
 
 //   @override
@@ -33,20 +66,159 @@ final List<String> imgList = [
 // class _AppHomeState extends State<AppHome> with SingleTickerProviderStateMixin{
 
 
-class AppHome extends StatelessWidget {
+class AppHome extends StatefulWidget {
 
 
 
+  @override
+  _AppHomeState createState() => _AppHomeState();
+}
+
+class _AppHomeState extends State<AppHome> {
+
+
+var myname= "",pincode="",area="",mobile="",token="",myid="";
+
+var loading=true;
+var discount_list;
+var base_url = "";
+var cart_qty ;
+var payment ;
+// List<DiscountModel> discount = new List();
+ Response response;
+// List cart = new List();
+// List<YoutubeModel> listOMaps;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-
-
-
-
-  
 
   @override
 
 
+void HomeData(base_url) async {
+  setState(() {
+ loading=true;
+});
+   var dio = Dio();
+  try {
+   
+    // print("response.data");
+    CounterModel model = ScopedModel.of(context);
+ 
+ 
+     response = await dio.post(base_url+"api/home_screen",
+     
+     data: {
+       "customer_id":myid,
+        "pincode":pincode,
+        "area":area
+    
+    }
+    ,options: Options(headers: {"Authorization": token})
+    );
+    print(response.data["cart"]);
+    
+
+
+
+    if(response.data["status"])
+    {
+ model.SetCartQty(response.data["cart"].length) ;
+
+
+ model.SetCart(response.data["cart"] as List);
+     
+   
+setState(() {
+ loading=false;
+});
+
+   }
+
+    else{
+ showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("OOPS something wrong."),
+          content: new Text("Please Try again"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Ok"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+      
+setState(() {
+     loading=false; 
+     
+    });
+    }
+    
+  } catch (e) {
+    print(e);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+getSharedPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+  
+    // print("token " +prefs.getString("token"));
+    // print("myid "+prefs.getString("myid"));
+    // print("myname "+prefs.getString("myname"));
+    // print("mobile "+prefs.getString("mobile"));
+    // print("pincode "+prefs.getString("pincode"));
+    // print("area "+prefs.getString("area"));
+CounterModel model = ScopedModel.of(context);
+ 
+
+ setState(() {
+  myname =  prefs.getString("myname");
+  pincode=prefs.getString("pincode");
+  area=prefs.getString("area");
+  mobile=prefs.getString("mobile");
+  token=prefs.getString("token");
+  myid=prefs.getString("myid") ;
+ base_url = model.url; 
+
+ });
+HomeData(model.url);
+
+
+model.setMyid(myid);
+  }
+
+  @override
+ 
+  void initState() {
+  
+    getSharedPreferences();
+    super.initState();
+  }
+
+
+
+
+_saveValues(io) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool("islogin",io);
+                Navigator.of(context).pushReplacement(new MaterialPageRoute(builder: (BuildContext context) => new HomePage()));
+
+}
 
 
 void _showDialog(context) {
@@ -64,6 +236,8 @@ void _showDialog(context) {
               child: new Text("LOGOUT"),
               onPressed: () {
                 Navigator.of(context).pop();
+_saveValues(null);
+
               },
             ), new FlatButton(
               child: new Text("CANCEL"),
@@ -76,14 +250,6 @@ void _showDialog(context) {
       },
     );
   }
-
-
-
-
-
-
-
-
 
   Widget build(BuildContext context){
 CounterModel model = ScopedModel.of(context);
@@ -192,8 +358,8 @@ CounterModel model = ScopedModel.of(context);
 
                     new Positioned(
                       
-                      top: 4.0,
-                      right: 5.0,
+                     top: 6.0,
+                      right: model.cart_qty >= 10? 6.0:7.0,
                       
                       // child: new Text(counter.getCart().toString(),
                       
@@ -210,7 +376,7 @@ CounterModel model = ScopedModel.of(context);
                         child:  ScopedModelDescendant<CounterModel>(
               builder: (context, child, model) {
                 return Text(
-                  model.counter.toString(),
+                  model.cart_qty.toString(),
                   
                   textAlign: TextAlign.center,
                       
@@ -257,8 +423,8 @@ CounterModel model = ScopedModel.of(context);
             new UserAccountsDrawerHeader(
              
 
- accountName: Text('Dinesh Kumar',style: new TextStyle(fontSize: 25),),
-                    accountEmail: Text('developine.com@gmail.com'),
+ accountName: Text(myname,style: new TextStyle(fontSize: 25),),
+                    accountEmail: Text(mobile),
                    
                     decoration: BoxDecoration( image: new DecorationImage(
                   fit: BoxFit.fill,
@@ -424,10 +590,14 @@ new Padding(padding: EdgeInsets.only(bottom: 20),)
 
 
 
-       
-        // body: _widgetOptions[0]
+  
 body:
 
+//  loading?SpinKitThreeBounce(
+//   color: Colors.pink,
+//   size: 50.0,
+  
+// ):
 
      new ListView(
 
@@ -435,44 +605,51 @@ body:
           children: <Widget>[
 
 
-            new Row(
-mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
+//             new Row(
+// mainAxisAlignment: MainAxisAlignment.center,
+//               children: <Widget>[
 
-new Row(children: <Widget>[
- Icon(Icons.place,size: 20,
- color: Colors.orange[600],),
-Padding(padding: EdgeInsets.all(1),),
-            Text('636452',style: new TextStyle(fontSize: 15,color: Colors.green,fontWeight: FontWeight.bold),)
+// new Row(children: <Widget>[
+//  Icon(Icons.place,size: 20,
+//  color: Colors.orange[600],),
+// Padding(padding: EdgeInsets.all(1),),
+//             Text(pincode,style: new TextStyle(fontSize: 15,color: Colors.green,fontWeight: FontWeight.bold),)
          
-            ,Text(' - First Zone ', overflow: TextOverflow.ellipsis,
-    maxLines: 1,style: new TextStyle(color: Colors.brown),),
+//             ,Text(' - '+area, overflow: TextOverflow.ellipsis,
+//     maxLines: 1,style: new TextStyle(color: Colors.brown),),
 
 
-],),
+// ],),
 
 
 
-Padding(padding: EdgeInsets.only(right: 20)),
+// Padding(padding: EdgeInsets.only(right: 20)),
 
-    ButtonTheme(
+//     ButtonTheme(
            
-  minWidth: 40.0,
-  height: 30.0,
-  buttonColor: Colors.pinkAccent,
-          child:
+//   minWidth: 40.0,
+//   height: 30.0,
+//   buttonColor: Colors.pinkAccent,
+//           child:
           
-       FlatButton(
+//        FlatButton(
 
 
-         onPressed: (){print('Change Location');},
+//          onPressed: (){print('Change Location');
+      
 
-         child: Text('Change Location',style: new TextStyle(color:Colors.blue),),
-       ),
+//                    Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new Location()));
 
-          ),
-              ],
-            ),
+//         //  HomeData(base_url);
+//         // test();
+//          },
+
+//          child: Text('Change Location',style: new TextStyle(color:Colors.blue),),
+//        ),
+
+//           ),
+//               ],
+//             ),
 
 
 
@@ -486,7 +663,8 @@ Padding(padding: EdgeInsets.all(5),),
       autoPlay: true,
       
       enlargeCenterPage: true,
-      items: imgList.map(
+      items:
+       imgList.map(
         (url) {
           return Container(
             margin: EdgeInsets.all(5.0),
@@ -553,8 +731,8 @@ padding: EdgeInsets.only(top:15),
 
 GestureDetector(
                 onTap: (){ 
-model.setProductlist(1);
-                  
+
+              model.setProductlist(2);
                   Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new ProductList()));
  },
   child:  Card(
@@ -580,12 +758,13 @@ padding: EdgeInsets.only(top:15),
 
 GestureDetector(
                 onTap: (){ 
+getSharedPreferences();
                   
-
-model.setProductlist(2);
-
-                  
-                  Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new ProductList()));
+                  // model.setProductlist(1);
+                  // Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new ProductList()));
+ 
+ 
+ 
  },
   child:  Card(
 
@@ -638,19 +817,31 @@ Padding(padding: EdgeInsets.only(bottom: 15),),
 
 Container(
   // height: 359,
-  child: CarouselSlider(
-    height: 300,
+  child:    loading?SpinKitThreeBounce(
+  color: Colors.pink,
+  size: 50.0,
+  
+):response.data["discount"].length<=0?Text("No Offer",textAlign: TextAlign.center,): CarouselSlider(
+    height: 270,
   
       viewportFraction: 0.65,
       aspectRatio: 2.0,
       // autoPlay: true,
-      
+      // enableInfiniteScroll: false,
+      enableInfiniteScroll:response.data["discount"].length==1? false:true,
+
       enlargeCenterPage: true,
       
-      items: imgList.map(
-        (url) {
+      items:
+
+   
+      
+      ( response.data["discount"] as List).map(
+        (data) {
+        
+       
           return 
-              
+            
 new GestureDetector(
 
   child:
@@ -666,6 +857,8 @@ new GestureDetector(
 
             decoration: BoxDecoration(
 
+    border: new Border.all(color: Colors.black87,),
+                borderRadius: BorderRadius.circular(22.0),
 
 
             ),
@@ -690,7 +883,7 @@ new Container(
     border: new Border.all(color: Colors.pink,),
     borderRadius:new BorderRadius.all(Radius.circular(20.0)) ,
   ),
-  child: new Text(" 21% off " ,style: new TextStyle(),),
+  child: new Text(" "+data["discount_percent"].toString()+" off " ,style: new TextStyle(),),
 ),
 
 
@@ -698,7 +891,7 @@ Padding(padding: EdgeInsets.only(right:10),
 
 child:
 
-new Text('12.08',style: new TextStyle(),)
+new Text('',style: new TextStyle(),)
  ),
 
 
@@ -708,15 +901,23 @@ new Text('12.08',style: new TextStyle(),)
 
                 
 
-Image.asset('assets/sr_logo.png',
-            fit: BoxFit.fill,
+
+
+
+          new ClipRRect(
+    borderRadius: new BorderRadius.circular(15.0),
+    child:Image.network(data["img_url"],
+            // fit: BoxFit.fill,
+            height: 120,
+            width: 120,
          
           
           ),
+),
 
 Padding(padding: EdgeInsets.all(5),),
 
-    new Text("Banana",style: new TextStyle(fontSize: 22,fontWeight: FontWeight.bold,color: Colors.brown),),
+    new Text(data["name"],style: new TextStyle(fontSize: 22,fontWeight: FontWeight.bold,color: Colors.brown),),
          
 Padding(padding: EdgeInsets.all(5),),
 
@@ -731,8 +932,8 @@ mainAxisAlignment: MainAxisAlignment.spaceAround,
 
 
 
-    new Text("₹ 38.00",style: new TextStyle(fontSize: 18,),),
-    new Text("2 kg",style: new TextStyle(fontSize: 18,color: Colors.grey),),
+    new Text(data["price"].toString(),style: new TextStyle(fontSize: 18,),),
+    new Text(data["unit"].toString(),style: new TextStyle(fontSize: 18,color: Colors.grey),),
 
 
 
@@ -751,16 +952,24 @@ mainAxisAlignment: MainAxisAlignment.spaceAround,
             onTap: (){
 
 
-              print(url);
+              print(data["name"]);
             },
           );
+       
+      
+       
         },
+      
+      
       ).toList(),
+    
+    
+    
     ),
 ),
  
 Padding(padding: EdgeInsets.all(5),),
- Padding(
+loading?Padding(padding: EdgeInsets.all(1)):response.data["discount"].length<=0?Padding(padding: EdgeInsets.all(1),): Padding(
 padding: EdgeInsets.only(right:10),
 child:Align(
 
@@ -799,21 +1008,34 @@ Align(
 
 Padding(padding: EdgeInsets.only(bottom: 15),),
 
+
+
+
 Container(
   // height: 359,
-  child: CarouselSlider(
-    height: 300,
+  child:    loading?SpinKitThreeBounce(
+  color: Colors.pink,
+  size: 50.0,
+  
+):response.data["cashback"].length<=0?Text("No cashback",textAlign: TextAlign.center,): CarouselSlider(
+    height: 270,
   
       viewportFraction: 0.65,
       aspectRatio: 2.0,
       // autoPlay: true,
-      
+      enableInfiniteScroll:response.data["cashback"].length==1? false:true,
       enlargeCenterPage: true,
       
-      items: imgList.map(
-        (url) {
+      items:
+
+   
+      
+      ( response.data["cashback"] as List).map(
+        (data) {
+        
+       
           return 
-              
+            
 new GestureDetector(
 
   child:
@@ -823,12 +1045,14 @@ new GestureDetector(
                 borderRadius: BorderRadius.circular(22.0),
                 
               ),
-             color: Color(0xffffedf6),
+             color: Color(0xffedf3ff),
             child: Container(
             width: 200,
 
             decoration: BoxDecoration(
 
+    border: new Border.all(color: Colors.black87,),
+                borderRadius: BorderRadius.circular(22.0),
 
 
             ),
@@ -853,7 +1077,7 @@ new Container(
     border: new Border.all(color: Colors.pink,),
     borderRadius:new BorderRadius.all(Radius.circular(20.0)) ,
   ),
-  child: new Text(" 50% cashback " ,style: new TextStyle(),),
+  child: new Text(" "+data["cashback_percent"].toString()+"% off " ,style: new TextStyle(),),
 ),
 
 
@@ -861,7 +1085,7 @@ Padding(padding: EdgeInsets.only(right:10),
 
 child:
 
-new Text('10.00',style: new TextStyle(),)
+new Text('',style: new TextStyle(),)
  ),
 
 
@@ -871,15 +1095,23 @@ new Text('10.00',style: new TextStyle(),)
 
                 
 
-Image.asset('assets/sr_logo.png',
-            fit: BoxFit.fill,
+
+
+
+          new ClipRRect(
+    borderRadius: new BorderRadius.circular(15.0),
+    child:Image.network(data["img_url"],
+            // fit: BoxFit.fill,
+            height: 120,
+            width: 120,
          
           
           ),
+),
 
 Padding(padding: EdgeInsets.all(5),),
 
-    new Text("Tomato",style: new TextStyle(fontSize: 22,fontWeight: FontWeight.bold,color: Colors.brown),),
+    new Text(data["name"],style: new TextStyle(fontSize: 22,fontWeight: FontWeight.bold,color: Colors.brown),),
          
 Padding(padding: EdgeInsets.all(5),),
 
@@ -894,8 +1126,8 @@ mainAxisAlignment: MainAxisAlignment.spaceAround,
 
 
 
-    new Text("₹ 20.00",style: new TextStyle(fontSize: 18,),),
-    new Text("1 kg",style: new TextStyle(fontSize: 18,color: Colors.grey),),
+    new Text(data["price"].toString(),style: new TextStyle(fontSize: 18,),),
+    new Text(data["unit"].toString(),style: new TextStyle(fontSize: 18,color: Colors.grey),),
 
 
 
@@ -914,16 +1146,24 @@ mainAxisAlignment: MainAxisAlignment.spaceAround,
             onTap: (){
 
 
-              print(url);
+              print(data["name"]);
             },
           );
+       
+      
+       
         },
+      
+      
       ).toList(),
+    
+    
+    
     ),
 ),
-
+ 
 Padding(padding: EdgeInsets.all(5),),
- Padding(
+loading?Padding(padding: EdgeInsets.all(1)):response.data["discount"].length<=0?Padding(padding: EdgeInsets.all(1),): Padding(
 padding: EdgeInsets.only(right:10),
 child:Align(
 
@@ -942,6 +1182,13 @@ child:Align(
 
 
  ),
+  
+
+
+
+
+
+
 
  Padding(padding: EdgeInsets.only(top:10,left: 10,right: 10,bottom: 30),
  child: new Divider(color: Colors.black,),

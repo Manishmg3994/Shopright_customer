@@ -7,6 +7,9 @@ import 'scopedmodel.dart';
 import 'package:scoped_model/scoped_model.dart';
 // import 'package:provider/provider.dart';
 // import 'states.dart';
+import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 
 class ProductList extends StatefulWidget {
@@ -18,15 +21,88 @@ class ProductList extends StatefulWidget {
 
 class ProductListState extends State<ProductList> {
 
+  List catogory =["veg","grocery","fruits"];
+
+var myname= "",pincode="",area="",mobile="",token="",myid="";
+var no_data=false;
+var loading=true;
+var base_url = "";
+List alldata = new List();
+
  List _fruits = ["Vegetable", "Grocery", "Fruits","Wishlist", "Discount Offer", "Cashback Offer"];
 
   List<DropdownMenuItem<String>> _dropDownMenuItems;
   String _selectedFruit;
+Response response;
+
+void productx(base_url,cat) async {
+  setState(() {
+ loading=true;
+});
+  
+  try {
+   
+   response = await Dio().post(base_url+"api/pincodeproduct",data: {
+       "category":catogory[cat].toString(),
+        "pincode":pincode,
+        "area":area
+    
+    }
+    ,options: Options(headers: {"Authorization": token})
+    );
+    // print(response.data);
+    
+    if(response.data["status"])
+    {
+     
+   alldata =  response.data["result"][0]["products"];
+setState(() {
+ loading=false;
+});
+     
+
+   }
+
+    else{
+     
+setState(() {
+     loading=false; 
+     no_data=true;
+    });
+    }
+    
+  } catch (e) {
+    print(e);
+  }
+}
+
+getSharedPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+  
+CounterModel model = ScopedModel.of(context);
+ print(model.myid);
+
+ setState(() {
+  myname =  prefs.getString("myname");
+  pincode=prefs.getString("pincode");
+  area=prefs.getString("area");
+ 
+  token=prefs.getString("token");
+ 
+ base_url = model.url; 
+
+ });
+productx(model.url,model.productlist);
+
+  }
+
 
   
 
   @override
   void initState() {
+    getSharedPreferences();
+
     _dropDownMenuItems = buildAndGetDropDownMenuItems(_fruits);
 
 //      ScopedModelDescendant<CounterModel>(
@@ -62,6 +138,7 @@ var search = false;
   var ty =['fgvdxrvdx ddx xdgrxc dx','cgdvgdfb ','hjghfh uhnuuu ','jhgjjb jugnugjy ujutuj7t ','fghyybyg'];
   @override
   Widget build(BuildContext context) {
+CounterModel model = ScopedModel.of(context);
 
        
         // final counter = Provider.of<States>(context);
@@ -139,9 +216,9 @@ backgroundColor: Colors.grey[200],
 
                     new Positioned(
                       
-                      top: 4.0,
-                      right: 5.0,
-                      child: new Text(12.toString(),
+                       top: 6.0,
+                      right: model.cart_qty >= 10? 6.0:7.0,
+                      child: new Text(model.cart_qty.toString(),
                       
                       textAlign: TextAlign.center,
                       
@@ -182,6 +259,18 @@ backgroundColor: Colors.grey[200],
 body:
 
 
+ loading?SpinKitThreeBounce(
+  color: Colors.pink,
+  size: 50.0,
+  
+):
+
+
+no_data?Center(
+  child: new Text("No product Available..",style: new TextStyle(fontSize: 22),),
+):
+
+
 
 new Column(
 
@@ -219,7 +308,7 @@ Padding(padding: EdgeInsets.only(left: 20),),
   new Expanded(
   
 child:new GridView.builder(
-        itemCount: 5,
+        itemCount: alldata.length,
         gridDelegate:
             new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2,
             
@@ -265,10 +354,10 @@ child: new Column(
 
 
 
-Image.asset('assets/sr_logo.png',
-            fit: BoxFit.fill,
+Image.network(alldata[index]["img_url"],
+            // fit: BoxFit.fill,
          
-          //  height: 100,
+           height: 100,
           ),
 
 // ),
@@ -285,7 +374,7 @@ Image.asset('assets/sr_logo.png',
 
   alignment: Alignment.centerLeft,
 
-          child:new Text('₹ 54.00',style: new TextStyle(fontSize: 20,fontWeight: FontWeight.bold),textAlign: TextAlign.left,)),
+          child:new Text('₹ '+alldata[index]["price"].toString(),style: new TextStyle(fontSize: 20,fontWeight: FontWeight.bold),textAlign: TextAlign.left,)),
 
    ),
   Padding(padding: EdgeInsets.only(top: 8,left: 10),
@@ -293,7 +382,7 @@ Image.asset('assets/sr_logo.png',
 
   alignment: Alignment.center,
 
-          child:new Text(ty[index],style: new TextStyle( fontSize: 16,fontWeight: FontWeight.bold,color: Colors.brown),textAlign: TextAlign.left,
+          child:new Text(alldata[index]["name"],style: new TextStyle( fontSize: 16,fontWeight: FontWeight.bold,color: Colors.brown),textAlign: TextAlign.left,
           overflow: TextOverflow.ellipsis,
     maxLines: 1,
           
@@ -307,7 +396,7 @@ Image.asset('assets/sr_logo.png',
 
   alignment: Alignment.bottomRight,
 
-          child:new Text('500g',style: new TextStyle(fontSize: 14),textAlign: TextAlign.left,)),
+          child:new Text(alldata[index]["unit"],style: new TextStyle(fontSize: 14),textAlign: TextAlign.left,)),
 
    ),
 
@@ -324,7 +413,9 @@ Image.asset('assets/sr_logo.png',
 ),
  
             onTap: () {
-             print(index);
+             print(alldata[index]["_id"]);
+model.setProductid(alldata[index]["_id"]);
+
             // Navigator.of(context).pop();
                 Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new ProductView()));
                
