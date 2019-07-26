@@ -40,6 +40,22 @@ _productlist = no;
   }
 
 
+
+
+  bool _searchbool=true;
+
+  bool get searchbool =>_searchbool;
+
+  void setSearchbool(no){
+
+_searchbool = no;
+    notifyListeners();
+
+  }
+
+
+
+
   int _cart_qty=0;
 
   int get cart_qty =>_cart_qty;
@@ -53,26 +69,68 @@ _cart_qty = no;
 
 
 
+  int _qty=0;
+
+  int get qty =>_qty;
+
+  void SetQty(no){
+
+_qty = no;
+    notifyListeners();
+
+  }
+
 
   List _cart =new List();
   List get cart =>_cart;
 
   void SetCart(data){
 
- _cart.add(data);
+ _cart=data;
     notifyListeners();
 
   }
 
-
   void RemoveCart(key){
 
-    _cart[0].removeWhere((data) =>  
+    _cart.removeWhere((data) =>  
     data["product_id"] == key
     
     );
       notifyListeners();
   }
+
+
+
+
+
+ List _search =new List();
+  List get search =>_search;
+
+  void SetSearch(data){
+
+ _search=data;
+    notifyListeners();
+
+  }
+
+
+
+
+ List _group =new List();
+  List get group =>_group;
+
+  void SetGroup(data){
+
+ _group=data;
+    notifyListeners();
+
+  }
+
+
+
+
+
 
 
 // replytile.removeWhere((item) => item.id == '001')
@@ -92,6 +150,48 @@ _productid = idx;
   }
 
 
+
+
+
+
+ String _pincode="";
+
+  String get pincode =>_pincode;
+
+  void setPincode(idx){
+
+_pincode = idx;
+    notifyListeners();
+
+  }
+
+
+ String _token="";
+
+  String get token =>_token;
+
+  void setToken(idx){
+
+_token = idx;
+    notifyListeners();
+
+  }
+
+  
+ String _area="";
+
+  String get area =>_area;
+
+  void setArea(idx){
+
+_area = idx;
+    notifyListeners();
+
+  }
+
+
+
+
    String _myid ="";
 
   String get myid =>_myid;
@@ -106,6 +206,17 @@ _myid = id;
 
 
 
+
+   String _groupid ="";
+
+  String get groupid =>_groupid;
+
+  String setGroupid(id){
+
+_groupid = id;
+    notifyListeners();
+
+  }
 
 
   bool _islogin = false;

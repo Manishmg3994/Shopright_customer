@@ -37,9 +37,9 @@ CounterModel model = ScopedModel.of(context);
       
       {
 "conform_id":	response.data["order_id"],
- "name": "iamdinesh",
-            "mobile": "8870970677",
-            "address": "15/4,first street,636451",
+ "name": myname,
+            "mobile": mobile,
+            "address": door+","+adr1+","+adr2+","+pincode,
             "pay_method": "cash on delivery"
             
 }
@@ -252,7 +252,8 @@ Padding(padding: EdgeInsets.all(5),),
               new Container(
   height: 120.0,
   color: Colors.grey[200],
-  child:new ListView.builder(
+  child:
+  new ListView.builder(
         itemCount: response.data["result"].length,
        
         itemBuilder: (BuildContext context, int index) {

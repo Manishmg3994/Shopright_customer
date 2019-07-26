@@ -35,14 +35,23 @@ List alldata = new List();
   String _selectedFruit;
 Response response;
 
-void productx(base_url,cat) async {
+
+
+
+
+
+
+
+void productx(cat,endpoint) async {
   setState(() {
  loading=true;
+ no_data= false;
 });
   
   try {
    
-   response = await Dio().post(base_url+"api/pincodeproduct",data: {
+   response = await Dio().post(base_url+"api/"+endpoint,data: {
+      "customer_id": myid,
        "category":catogory[cat].toString(),
         "pincode":pincode,
         "area":area
@@ -50,7 +59,7 @@ void productx(base_url,cat) async {
     }
     ,options: Options(headers: {"Authorization": token})
     );
-    // print(response.data);
+    print(response.data["result"]);
     
     if(response.data["status"])
     {
@@ -69,6 +78,9 @@ setState(() {
      loading=false; 
      no_data=true;
     });
+
+
+
     }
     
   } catch (e) {
@@ -80,10 +92,11 @@ getSharedPreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
   
 CounterModel model = ScopedModel.of(context);
- print(model.myid);
+//  print(model.myid);
 
  setState(() {
   myname =  prefs.getString("myname");
+  myid =  prefs.getString("myid");
   pincode=prefs.getString("pincode");
   area=prefs.getString("area");
  
@@ -91,8 +104,38 @@ CounterModel model = ScopedModel.of(context);
  
  base_url = model.url; 
 
+
+
  });
-productx(model.url,model.productlist);
+
+
+if(model.productlist == 96){
+
+productx( 1,"viewwishlist");
+
+
+}
+
+else if(model.productlist == 97){
+
+  print("Discount Offer");
+
+productx( 1,"discount_product");
+
+
+}
+
+else if(model.productlist == 98){
+productx( 1,"cashback_product");
+
+
+}
+
+else{
+
+productx(model.productlist,"pincodeproduct");
+
+}
 
   }
 
@@ -105,15 +148,46 @@ productx(model.url,model.productlist);
 
     _dropDownMenuItems = buildAndGetDropDownMenuItems(_fruits);
 
-//      ScopedModelDescendant<CounterModel>(
-//               builder: (context, child, model) {
-// print('object');
-//               });
+
 
 CounterModel model = ScopedModel.of(context);
-// print(model.productlist.toString());
-// model.setProductlist(3);
+
+
+
+
+if(model.productlist == 96){
+
+// productx( 1,"viewwishlist");
+
+    _selectedFruit = _dropDownMenuItems[(_dropDownMenuItems.length  - 3)].value;
+
+
+
+}
+
+else if(model.productlist == 97){
+
+      _selectedFruit = _dropDownMenuItems[(_dropDownMenuItems.length  - 2)].value;
+
+
+
+}
+
+else if(model.productlist == 98){
+  
+
+    _selectedFruit = _dropDownMenuItems[(_dropDownMenuItems.length - 1)].value;
+
+
+
+}
+
+else{
     _selectedFruit = _dropDownMenuItems[model.productlist].value;
+
+
+}
+
 
     super.initState();
   }
@@ -127,10 +201,44 @@ CounterModel model = ScopedModel.of(context);
   }
 
   void changedDropDownItem(String selectedFruit) {
+
+
     setState(() {
       _selectedFruit = selectedFruit;
+      loading = true;
     });
+
+
+if(selectedFruit == "Wishlist"){
+
+productx( 1,"viewwishlist");
+
+
+}
+
+else if(selectedFruit == "Discount Offer"){
+
+  print("Discount Offer");
+
+productx( 1,"discount_product");
+
+
+}
+
+else if(selectedFruit ==  "Cashback Offer"){
+productx( 1,"cashback_product");
+
+
+}
+
+else{
+
+productx( _fruits.indexOf(selectedFruit),"pincodeproduct");
+
+}
+
   }
+  
 
 
 var search = false;
@@ -187,7 +295,8 @@ backgroundColor: Colors.grey[200],
               },
               ):new IconButton(icon: new Icon(Icons.search),
               onPressed: (){
-                  SearchView().showMaterialSearch(context);
+                 
+                Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new SearchView()));
 
                 // setState(() {
                 //  search=true; 
@@ -197,7 +306,13 @@ backgroundColor: Colors.grey[200],
 
  new Padding(
                 padding: EdgeInsets.only(top: 5.0,right: 5),
-                child: new Stack(
+                child:
+
+                ScopedModelDescendant<CounterModel>(
+              builder: (context, child, model) {
+                return 
+//  }),
+                 new Stack(
                   children: <Widget>[
                     new IconButton(icon: new Icon(Icons.shopping_cart),
                       onPressed: () {
@@ -217,8 +332,8 @@ backgroundColor: Colors.grey[200],
                     new Positioned(
                       
                        top: 6.0,
-                      right: model.cart_qty >= 10? 6.0:7.0,
-                      child: new Text(model.cart_qty.toString(),
+                      right: model.cart.length >= 10? 6.0:7.0,
+                      child: new Text(model.cart.length.toString(),
                       
                       textAlign: TextAlign.center,
                       
@@ -232,7 +347,9 @@ backgroundColor: Colors.grey[200],
                     ) ,
                   
                   ],
-                ),
+                );
+              
+              }),
               ),
 
 
@@ -258,17 +375,6 @@ backgroundColor: Colors.grey[200],
 
 body:
 
-
- loading?SpinKitThreeBounce(
-  color: Colors.pink,
-  size: 50.0,
-  
-):
-
-
-no_data?Center(
-  child: new Text("No product Available..",style: new TextStyle(fontSize: 22),),
-):
 
 
 
@@ -305,6 +411,25 @@ Padding(padding: EdgeInsets.only(left: 20),),
 ],
 
 ),
+ 
+ 
+ 
+ loading?Center(
+   heightFactor:  MediaQuery.of(context).size.height/70,
+  child:SpinKitThreeBounce(
+  color: Colors.pink,
+  size: 50.0,
+  
+)):
+
+
+no_data?Center(
+   heightFactor:  MediaQuery.of(context).size.height/30,
+
+  child: new Text("No product Available..",style: new TextStyle(fontSize: 22),),
+):
+
+ 
   new Expanded(
   
 child:new GridView.builder(

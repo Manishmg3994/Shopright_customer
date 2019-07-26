@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:toast/toast.dart';
 import 'scopedmodel.dart';
+import 'choosegroup.dart';
 import 'package:scoped_model/scoped_model.dart';
 // import 'package:provider/provider.dart';
 // import 'states.dart';
@@ -131,6 +132,7 @@ setState(() {
 
 });
                  Toast.show("Added Successfully",context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+                 AddTo();
 
 }
 
@@ -266,6 +268,63 @@ setState(() {
 }
 
 
+
+
+void AddTo() async {
+
+ 
+  try {
+   
+    CounterModel model = ScopedModel.of(context);
+ 
+ 
+     response = await  Dio().post(base_url+"api/cartproduct",
+     
+     data: {
+       "customer_id":myidx,
+        "pincode":pincode,
+        "area":area
+    
+    }
+    ,options: Options(headers: {"Authorization": token})
+    );
+    print(response.data);
+    
+
+
+
+    if(response.data["status"])
+    {
+ model.SetCartQty(response.data["result"].length) ;
+
+
+ model.SetCart(response.data["result"] as List);
+
+
+   }
+
+    else{
+
+    }
+    
+  } catch (e) {
+    print(e);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 getSharedPreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
   
@@ -311,7 +370,7 @@ final key = new GlobalKey<ScaffoldState>();
 //  final counter = Provider.of<States>(context);
 
 //    print(counter.toString());
-CounterModel model = ScopedModel.of(context);
+// CounterModel model = ScopedModel.of(context);
 
     return new Scaffold(
 
@@ -329,7 +388,11 @@ CounterModel model = ScopedModel.of(context);
       
  new Padding(
                 padding: EdgeInsets.only(top: 5.0,right: 5),
-                child: new Stack(
+                child:
+               ScopedModelDescendant<CounterModel>(
+              builder: (context, child, model) {
+                return 
+                 new Stack(
                   children: <Widget>[
                     new IconButton(icon: new Icon(Icons.shopping_cart),
                       onPressed: () {
@@ -349,10 +412,10 @@ CounterModel model = ScopedModel.of(context);
                     new Positioned(
                       
                       top: 6.0,
-                      right: model.cart_qty >= 10? 6.0:7.0,
+                      right: model.cart.length >= 10? 6.0:7.0,
                     //  top: 6.0,
                     //   right: 7.0,
-                      child: new Text(model.cart_qty.toString(),
+                      child: new Text(model.cart.length.toString(),
                       
                       textAlign: TextAlign.center,
                       
@@ -366,7 +429,9 @@ CounterModel model = ScopedModel.of(context);
                     ) ,
                   
                   ],
-                ),
+                );
+              })
+              
               ),
 
 
@@ -648,7 +713,17 @@ else{
                 new Icon(Icons.favorite_border,color: Colors.black,),
                 
                  label: new Text("Wishlist"),),
-                new FlatButton.icon(onPressed: (){}, icon: new Icon(Icons.assignment,color: Colors.purple), label: new Text("Group")),
+                new FlatButton.icon(onPressed: (){
+
+
+CounterModel model = ScopedModel.of(context);
+
+model.SetQty(qty);
+                  
+
+                Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new ChooseGroup()));
+                  
+                }, icon: new Icon(Icons.assignment,color: Colors.purple), label: new Text("Group")),
                
                
                

@@ -1,4 +1,11 @@
 import 'package:flutter/material.dart';
+import 'scopedmodel.dart';
+import 'package:scoped_model/scoped_model.dart';
+// import 'package:provider/provider.dart';
+// import 'states.dart';
+import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 
 class MyOrders extends StatefulWidget {
@@ -9,7 +16,81 @@ class MyOrders extends StatefulWidget {
 }
 
 class MyOrdersState extends State<MyOrders> {
+List<String>  lst = ["fdcd","rdfg","drgcrdgcr"];
+var myname= "",pincode="",area="",mobile="",token="",myid="";
+var no_data=false;
+var loading=true;
+var base_url = "";
+Response response;
+List alldata = new List();
 
+void productx(base_url,cat) async {
+  setState(() {
+ loading=true;
+});
+  
+  try {
+   
+   response = await Dio().post(base_url+"api/my_all_orders",data: {
+     "customer_id": myid  
+    
+    }
+    ,options: Options(headers: {"Authorization": token})
+    );
+    // print(response.data);
+    
+    if(response.data["status"])
+    {
+     
+   alldata =  response.data["result"];
+setState(() {
+ loading=false;
+});
+     
+print(alldata);
+   }
+
+    else{
+     
+setState(() {
+     loading=false; 
+     no_data=true;
+    });
+    }
+    
+  } catch (e) {
+    print(e);
+  }
+}
+
+getSharedPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+  
+CounterModel model = ScopedModel.of(context);
+ print(model.myid);
+
+ setState(() {
+  myid =  prefs.getString("myid");
+  pincode=prefs.getString("pincode");
+  area=prefs.getString("area");
+ 
+  token=prefs.getString("token");
+ 
+ base_url = model.url; 
+
+ });
+productx(model.url,model.productlist);
+
+  }
+
+ @override
+  void initState() {
+    getSharedPreferences();
+
+    super.initState();
+  }
+
+  
 
   var name = ['Dinesh','kumar','rafi'];
   var order  = ['Cancel Order','Delivered','3'];
@@ -33,7 +114,7 @@ class MyOrdersState extends State<MyOrders> {
 
 
         body: ListView.builder(
-            itemCount: 3,
+            itemCount: alldata.length,
             itemBuilder: (BuildContext cont, int ind) {
               return SafeArea(
                   child: Column(children: <Widget>[
@@ -55,7 +136,7 @@ class MyOrdersState extends State<MyOrders> {
                                 Container(
                                   alignment: Alignment.topLeft,
                                   child: Text(
-                                   name[ind],
+                                   alldata[ind]["name"],
                                     style: TextStyle(
                                       fontSize: 18.0,
                                       fontStyle: FontStyle.normal,
@@ -71,7 +152,7 @@ class MyOrdersState extends State<MyOrders> {
                                 Container(
                                   alignment: Alignment.topLeft,
                                   child: Text(
-                                    'To Deliver On :' +
+                                    'Ordered On :' +
                                        ' 03.12.2019',
                                     style: TextStyle(
                                         fontSize: 13.0, color: Colors.black54),
@@ -131,7 +212,7 @@ class MyOrdersState extends State<MyOrders> {
                                             Container(
                                               margin: EdgeInsets.only(top: 3.0),
                                               child: Text(
-                                                '45.79',
+                                                alldata[ind]["total"].toString(),
                                                 style: TextStyle(
                                                     fontSize: 18.0,
                                                     color: Colors.black87),
@@ -154,7 +235,8 @@ class MyOrdersState extends State<MyOrders> {
                                             Container(
                                               margin: EdgeInsets.only(top: 3.0),
                                               child: Text(
-                                                'COD',
+                                                 alldata[ind]["pay_method"],
+                                                // "COD",
                                                 style: TextStyle(
                                                     fontSize: 18.0,
                                                     color: Colors.black87),
@@ -181,70 +263,120 @@ class MyOrdersState extends State<MyOrders> {
                                       size: 20.0,
                                         color: Colors.amber.shade500,
                                     ),
-                                    Text('First Street, mettur,636451',
+                                    Text( alldata[ind]["address"],
                                         style: TextStyle(
                                             fontSize: 15.0,
                                             color: Colors.black54)),
                                   ],
                                 ),
-                              //    Padding(padding: EdgeInsets.all(10),
-                                
-                                
-                              //  child: Divider(
-                              //     height: 10.0,
-                              //     color: Colors.redAccent,
-                              //   ),
-                              //   ),
-                                Container(
-                                 child:_status(order[ind])
-                                ),
+                            
+                                // Container(
+                                //  child:_status(order[ind])
+                                // ),
 
  new ExpansionTile(
 
                   title: new Text("View Products"),
 
+                  
+
 children: <Widget>[
-        Table(
-                                   border: TableBorder.all(width: 0.2, color: Colors.grey),
-                                  
-                                  children: [
 
-                                    
-                          
-  TableRow(
+Row(
+mainAxisAlignment: MainAxisAlignment.spaceBetween,
+children: <Widget>[
+
+Expanded(
+flex: 4,
+   child:Text("Name",style: new TextStyle(fontWeight: FontWeight.bold,color: Colors.brown),textAlign: TextAlign.center,),
   
-    children: [
-    Text("Name",style: new TextStyle(fontWeight: FontWeight.bold,fontSize: 16,color: Colors.brown),textAlign: TextAlign.center,),
+),Expanded(
+flex: 2,
+   child:Text("Price",style: new TextStyle(fontWeight: FontWeight.bold,color: Colors.brown),textAlign: TextAlign.center,),
+  
+),Expanded(
+flex: 1,
+   child:Text("Qty",style: new TextStyle(fontWeight: FontWeight.bold,color: Colors.brown),textAlign: TextAlign.center,),
+  
+),Expanded(
+flex: 3,
+   child:Text("Status",style: new TextStyle(fontWeight: FontWeight.bold,color: Colors.brown),textAlign: TextAlign.center,),
+  
+),
+  // Text("Price",style: new TextStyle(fontWeight: FontWeight.bold,color: Colors.brown),),
+  // Text("Qty",style: new TextStyle(fontWeight: FontWeight.bold,color: Colors.brown),),
+  // Text("Status",style: new TextStyle(fontWeight: FontWeight.bold,color: Colors.brown),),
+],
+),
 
-        Text("qty",style: new TextStyle(fontWeight: FontWeight.bold,fontSize: 16,color: Colors.brown),textAlign: TextAlign.center,),
-    Text("MRP.",style: new TextStyle(fontWeight: FontWeight.bold,fontSize: 16,color: Colors.brown),textAlign: TextAlign.center,),
-    Text("off.",style: new TextStyle(fontWeight: FontWeight.bold,fontSize: 16,color: Colors.brown),textAlign: TextAlign.center,),
+Divider(),
 
-  ]),
-  TableRow(children:[
-     Text("apple",style: new TextStyle(),textAlign: TextAlign.center,),
-    Text("3",style: new TextStyle(),textAlign: TextAlign.center,),
-    Text("67",style: new TextStyle(),textAlign: TextAlign.center,),
-    Text("20%",style: new TextStyle(),textAlign: TextAlign.center,),
-  ]), 
+ new Container(
+              height:alldata[ind]["products"].length>8? 100.0:alldata[ind]["products"].length*15.5,
+child:
 
-   TableRow(children:[
-     Text("apple",style: new TextStyle(),textAlign: TextAlign.center,),
-    Text("3",style: new TextStyle(),textAlign: TextAlign.center,),
-    Text("67",style: new TextStyle(),textAlign: TextAlign.center,),
-    Text("20%",style: new TextStyle(),textAlign: TextAlign.center,),
-  ]),  TableRow(children:[
-     Text("apple",style: new TextStyle(),textAlign: TextAlign.center,),
-    Text("3",style: new TextStyle(),textAlign: TextAlign.center,),
-    Text("67",style: new TextStyle(),textAlign: TextAlign.center,),
-    Text("20%",style: new TextStyle(),textAlign: TextAlign.center,),
-  ]),  TableRow(children:[
-     Text("apple",style: new TextStyle(),textAlign: TextAlign.center,),
-    Text("3",style: new TextStyle(),textAlign: TextAlign.center,),
-    Text("67",style: new TextStyle(),textAlign: TextAlign.center,),
-    Text("20%",style: new TextStyle(),textAlign: TextAlign.center,),
-  ]), 
-]),
+
+new ListView.builder(
+        itemCount: alldata[ind]["products"].length,
+       
+        itemBuilder: (BuildContext context, int index) {
+         return
+         
+    Row(
+mainAxisAlignment: MainAxisAlignment.spaceBetween,
+children: <Widget>[
+
+Expanded(
+flex: 4,
+   child:Text(alldata[ind]["products"][index]["cus_name"],style: new TextStyle(fontSize: 18),textAlign: TextAlign.center,),
+  
+),Expanded(
+flex: 2,
+   child:Text(alldata[ind]["products"][index]["cus_price"].toString(),style: new TextStyle(fontSize: 18),textAlign: TextAlign.center,),
+  
+),Expanded(
+flex: 1,
+   child:Text(alldata[ind]["products"][index]["cus_qty"].toString(),style: new TextStyle(fontSize: 18),textAlign: TextAlign.center,),
+  
+),Expanded(
+flex: 3,
+   child:Text(alldata[ind]["products"][index]["cus_status"].toString(),style: new TextStyle(fontSize: 18),textAlign: TextAlign.center,),
+  
+),
+  // Text("Price",style: new TextStyle(fontWeight: FontWeight.bold,color: Colors.brown),),
+  // Text("Qty",style: new TextStyle(fontWeight: FontWeight.bold,color: Colors.brown),),
+  // Text("Status",style: new TextStyle(fontWeight: FontWeight.bold,color: Colors.brown),),
+],
+);
+
+
+        }),
+ ),
+ 
+
+  // new ListView.builder(
+  //       itemCount: 4,
+       
+  //       itemBuilder: (BuildContext context, int index) {
+  //        return Text("data");
+
+
+  //       }),
+
+
+  //  (lst.map(
+  //       (data) {
+        
+       
+  //         return Text("data");
+            
+
+  //       }
+      
+  //     ).toList(),
+    
+
+
 
 Padding(padding: EdgeInsets.all(10),)
 ],

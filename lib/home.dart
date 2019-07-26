@@ -198,8 +198,11 @@ CounterModel model = ScopedModel.of(context);
  });
 HomeData(model.url);
 
-
+print(myid);
 model.setMyid(myid);
+model.setArea(area);
+model.setPincode(pincode);
+model.setToken(token);
   }
 
   @override
@@ -332,7 +335,8 @@ CounterModel model = ScopedModel.of(context);
                 //  search=true; 
                 // });
 
-                  SearchView().showMaterialSearch(context);
+                  // SearchView().showMaterialSearch(context);
+                Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new SearchView()));
 
               },
               ),
@@ -354,12 +358,14 @@ CounterModel model = ScopedModel.of(context);
                         color: Colors.redAccent),
                     ) ,
 
-
+ ScopedModelDescendant<CounterModel>(
+              builder: (context, child, model) {
+                return
 
                     new Positioned(
                       
                      top: 6.0,
-                      right: model.cart_qty >= 10? 6.0:7.0,
+                      right:  model.cart.length >= 10? 6.0:7.0,
                       
                       // child: new Text(counter.getCart().toString(),
                       
@@ -373,10 +379,8 @@ CounterModel model = ScopedModel.of(context);
                       //   )
 
 
-                        child:  ScopedModelDescendant<CounterModel>(
-              builder: (context, child, model) {
-                return Text(
-                  model.cart_qty.toString(),
+                      child:Text(
+                  model.cart.length.toString(),
                   
                   textAlign: TextAlign.center,
                       
@@ -386,12 +390,12 @@ CounterModel model = ScopedModel.of(context);
                           fontWeight: FontWeight.w600,
                           
                         )
-                );
-              },
-            ),
+                ),
+             
                       // ),
-                    ) ,
-                  
+                    );
+                   },
+            ),
                   ],
                 ),
               ),
@@ -493,7 +497,7 @@ CounterModel model = ScopedModel.of(context);
               //  counter.dropdownSet(4);
 
                 Navigator.of(context).pop();
-model.setProductlist(3);
+model.setProductlist(96);
 
                 Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new ProductList()));
 
@@ -759,7 +763,7 @@ padding: EdgeInsets.only(top:15),
 GestureDetector(
                 onTap: (){ 
 getSharedPreferences();
-                  
+                  // print(model.cart.length.toString());
                   // model.setProductlist(1);
                   // Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new ProductList()));
  
@@ -979,6 +983,8 @@ child:Align(
   child: 
  new RaisedButton(color: Colors.blue, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10),), padding: EdgeInsets.all(15),
                       onPressed: (){
+model.setProductlist(97);
+
                   Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new ProductList()));
                      
                       },
@@ -1173,6 +1179,8 @@ child:Align(
   child: 
  new RaisedButton(color: Colors.blue, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10),), padding: EdgeInsets.all(15),
                       onPressed: (){
+model.setProductlist(98);
+
                   Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new ProductList()));
                      
                       },

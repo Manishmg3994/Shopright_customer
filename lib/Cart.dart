@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
 import 'conformorder.dart';
 
-import 'scopedmodel.dart';
+// import 'scopedmodel.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'scopedmodel.dart';
+// import 'package:scoped_model/scoped_model.dart';
+// import 'package:provider/provider.dart';
+// import 'states.dart';
+import 'package:toast/toast.dart';
+
+import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class CartView extends StatefulWidget {
   @override
@@ -16,6 +25,78 @@ class CartView extends StatefulWidget {
 class CartViewState extends State<CartView> {
 
 var count = 2;
+CounterModel model;
+var myname= "",pincode="",area="",mobile="",token="",myid="";
+var no_data=false;
+var loading=true;
+var base_url = "";
+
+
+void productx(idx) async {
+  setState(() {
+ loading=true;
+});
+  
+  try {
+   
+Response response
+    = await Dio().post(base_url+"api/removecart",data: {
+       "customer_id":myid,
+        "product_id":idx,
+    
+    }
+    ,options: Options(headers: {"Authorization": token})
+    );
+    print(response.data);
+    
+    if(response.data["status"])
+    {
+     
+          model.RemoveCart(idx);
+  
+setState(() {
+ loading=false;
+});
+     
+
+   }
+
+    else{
+     
+setState(() {
+     loading=false; 
+     no_data=true;
+    });
+    }
+    
+  } catch (e) {
+    print(e);
+  }
+}
+
+
+getSharedPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+  
+model = ScopedModel.of(context);
+ print(model.cart);
+
+ setState(() {
+  myid =  prefs.getString("myid");
+ 
+ 
+  token=prefs.getString("token");
+ 
+ base_url = model.url; 
+
+ });
+// productx(model.url,model.productlist);
+
+  }
+
+
+
+
 
 
 // CounterModel model;
@@ -23,7 +104,8 @@ var count = 2;
   void initState() {
 // model= ScopedModel.of(context);
 //     print(stream.cart.toString());
-//     print(stream.cart[0].length.toString());
+//     print(stream.cart.length.toString());
+getSharedPreferences();
     super.initState();
   }
 
@@ -37,7 +119,12 @@ CounterModel stream= ScopedModel.of(context);
           color: Colors.grey[100]
         ),
         padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.02),
-        child: new Column(
+        child:
+         ScopedModelDescendant<CounterModel>(
+              builder: (context, child, model) {
+                return 
+        
+         new Column(
           children: <Widget>[
             new Container(
               margin: EdgeInsets.only(top: MediaQuery.of(context).size.width * 0.1),
@@ -47,7 +134,13 @@ CounterModel stream= ScopedModel.of(context);
             ),
             new Divider(),
             new Expanded(
-              child: (count == 0) ?
+//  child: ScopedModelDescendant<CounterModel>(
+//               builder: (context, child, model) {
+//                 return 
+
+//   //             }),
+
+           child:    (stream.cart.length == 0) ?
                 new Center(child: new Text("No items in your cart",style: new TextStyle(fontSize: 25),) ,):
 
 
@@ -59,9 +152,11 @@ CounterModel stream= ScopedModel.of(context);
                 //   },
                 // ),
 
+              
+
 
 new ListView.builder(
-        itemCount: stream.cart[0].length,
+        itemCount: stream.cart.length,
        
         itemBuilder: (BuildContext context, int index) {
           return
@@ -98,7 +193,7 @@ children: <Widget>[
 
  Expanded(
           flex: 4, // 
-child: Image.network(stream.cart[0][index]["img_url"],
+child: Image.network(stream.cart[index]["img_url"],
             // fit: BoxFit.fill,
          
            height: 80,
@@ -121,7 +216,7 @@ Align(
 
   alignment: Alignment.center,
 
-  child: new Text(stream.cart[0][index]["name"], overflow: TextOverflow.ellipsis,style: new TextStyle(fontSize: 18,fontWeight: FontWeight.bold),
+  child: new Text(stream.cart[index]["name"], overflow: TextOverflow.ellipsis,style: new TextStyle(fontSize: 18,fontWeight: FontWeight.bold),
     maxLines: 2,),
 ),
 
@@ -136,9 +231,9 @@ mainAxisAlignment: MainAxisAlignment.spaceBetween,
   children: <Widget>[
 
 
-    Text('₹ '+stream.cart[0][index]["price"].toString()),
+    Text('₹ '+stream.cart[index]["price"].toString()),
 
-    Text(stream.cart[0][index]["unit"])
+    Text(stream.cart[index]["unit"])
   ],
 )),
 
@@ -190,26 +285,46 @@ mainAxisAlignment: MainAxisAlignment.spaceBetween,
 //     ],
 //   ),
 
+Row(
+mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
-
+  children: <Widget>[
+// Padding(padding: EdgeInsets.only(left: 1),),
 
   Row(
+
+    
 
 mainAxisAlignment: MainAxisAlignment.center,
 
     children: <Widget>[
  
-
+Padding(padding: EdgeInsets.only(left: 10)),
 
       SizedBox(
-  width: 50, // specific value
+  width: 40, // specific value
+
   child: RaisedButton(
 color: Colors.green,
+ shape: new RoundedRectangleBorder(
+         borderRadius: new BorderRadius.circular(100.0)),
+        onPressed: (){
 
-        onPressed: ()=>{
- setState(() {
-      count=count+1;
-    })
+          if(stream.cart[index]["my_qty"]<stream.cart[index]["on_move"]){
+
+setState(() {
+     stream.cart[index]["my_qty"] =stream.cart[index]["my_qty"]+1;
+    });
+
+
+          }
+
+          else{
+
+                 Toast.show("Out of Quantity",context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+        
+          }
+ 
 
 
           
@@ -222,19 +337,28 @@ color: Colors.green,
 
 
 Padding(padding: EdgeInsets.only(left: 15,right: 15),
-child: Text(stream.cart[0][index]["my_qty"].toString(),style: new TextStyle(fontSize: 20),),),
+child: Text(stream.cart[index]["my_qty"].toString(),style: new TextStyle(fontSize: 20),),),
 
      SizedBox(
-  width: 50, // specific value
+  width: 40, // specific value
   child: RaisedButton(
-color: Colors.red,
-        onPressed: ()=>{
+color: Colors.blue,
+shape: new RoundedRectangleBorder(
+         borderRadius: new BorderRadius.circular(100.0)),
+        onPressed: (){
 
-          stream.RemoveCart(stream.cart[0][index]["product_id"])
+          if(stream.cart[index]["my_qty"] > 1){
+
+  setState(() {
+
+     stream.cart[index]["my_qty"] =stream.cart[index]["my_qty"]-1;
+    });
+          }
+
+
           
-    //        setState(() {
-    //   count= count-1;
-    // })
+  
+
     
     
     },
@@ -249,7 +373,53 @@ color: Colors.red,
 
     ],
   ),
+      
 
+Padding(padding: EdgeInsets.only(right: 10),
+
+
+child:GestureDetector(
+  onTap: (){
+
+// print(stream.cart[index]["product_id"]);
+productx(stream.cart[index]["product_id"]);
+
+  },
+
+  child: Icon(Icons.delete,),
+),
+
+
+),
+
+
+
+
+//       RaisedButton(
+// color: Colors.transparent,
+
+//  shape: new RoundedRectangleBorder(
+   
+//          borderRadius: new BorderRadius.circular(100.0)),
+//         child: Icon(Icons.delete),
+        
+//         //  Text('Remove',textAlign: TextAlign.center,style: new TextStyle(fontSize: 14,color: Colors.white),),
+//       ),
+
+
+
+
+    
+  ],
+),
+
+
+
+ 
+ 
+ 
+ 
+ 
   Padding(padding: EdgeInsets.all(5),)
 ],
 
@@ -357,7 +527,6 @@ color: Colors.red,
         }),
 
 
-
                 
             ),
             new Divider(),
@@ -367,13 +536,15 @@ color: Colors.red,
                   new Expanded(
                     child: new RaisedButton(
                       onPressed: () {
-                        Navigator.of(context).pop();
-                   Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new ConfirmOrderPage()));
-
-
-                        (1 == 0) ? print("no items") : print("yes");
+                       
+// Navigator.of(context).pop();
+                        !(stream.cart.length == 0) ? 
+                       
+                   Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) =>
+                    new ConfirmOrderPage()))
+ : Navigator.of(context).pop();
                       },
-                      child: (1 == 0) ? new Text("Start Shopping") : new Text("Checkout"),
+                      child: (stream.cart.length == 0) ? new Text("Start Shopping") : new Text("Checkout"),
                       color: Colors.blueAccent,
                       textColor: Colors.white,
                     )
@@ -382,7 +553,23 @@ color: Colors.red,
               ),
             )
           ],
-        )
+        );
+     
+     
+     
+ }),
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
       );
 // return new Text('data');
     }

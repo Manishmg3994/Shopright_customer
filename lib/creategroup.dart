@@ -1,32 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:sliding_up_panel/sliding_up_panel.dart';
-import 'search.dart';
-
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-
-
+import 'groupview.dart';
 import 'package:dio/dio.dart';
 import 'package:toast/toast.dart';
 
 
 import 'scopedmodel.dart';
+import 'productview.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:gradient_widgets/gradient_widgets.dart';
 
 
-class GroupView extends StatefulWidget{
+class CreateGroup extends StatefulWidget{
+
   @override
-  _GroupViewState createState() => _GroupViewState();
+  _CreateGroupState createState() => _CreateGroupState();
 }
 
-class _GroupViewState extends State<GroupView> {
-PanelController _pc = new PanelController();
-
- List _fruits = ['Active','InActive'];
-
-  List<DropdownMenuItem<String>> _dropDownMenuItems;
-  String _selectedFruit;
-
-  bool monVal = false;
+class _CreateGroupState extends State<CreateGroup> {
+String groupname='';
+bool monVal = false;
   bool tuVal = false;
   bool wedVal = false;
 bool thuVal = false;
@@ -38,12 +30,11 @@ bool sunVal = false;
 
   var days = [];
 var time = [];
-var loading = true;
-var nodata = false;
+var loading = false;
+
+
   Response response;
-
-
-
+List find = [];
 
 
 void getData() async {
@@ -51,25 +42,19 @@ void getData() async {
    var dio = Dio();
   try {
    
-    // print("response.data");
     CounterModel model = ScopedModel.of(context);
-    // print(model.token);
-    // print(model.pincode);
-    // print(model.area);
+   
  
  
-     response = await dio.post(model.url+"api/group_product",
+     response = await dio.post(model.url+"api/view_group",
      
      data: {
-       "customer_id":model.myid,
-
-       "group_id":model.groupid
+       "customer_id":model.myid
  
     }
     ,options: Options(headers: {"Authorization": model.token})
     );
 
-print(response.data);
 
 setState(() {
  loading = false; 
@@ -77,41 +62,16 @@ setState(() {
 
 if(response.data["status"]){
 
-
-if(response.data["result"].length==0){
-
-
-setState(() {
- nodata = true; 
-});
-
-}
+model.SetGroup(response.data["result"]);
+                Navigator.of(context).pop();
 
 
 }
 
 else{
 
-                                    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        // return object of type Dialog
-        return AlertDialog(
-          content: new Text("Something wrong. Try again..."),
-          actions: <Widget>[
-            // usually buttons at the bottom of the dialog
-            new FlatButton(
-              child: new Text("Ok"),
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
  
+
 }
 
     
@@ -124,155 +84,111 @@ else{
 
 
 
+void Create(context) async {
+ 
+   var dio = Dio();
+  try {
+   
+    // print("response.data");
+    CounterModel model = ScopedModel.of(context);
+    // print(model.token);
+    // print(model.pincode);
+    // print(model.area);
+ 
+ 
+     response = await dio.post(model.url+"api/create_group",
+     
+     data: {
+       "customer_id":model.myid,
+        "name":groupname,
+         "frequent":days,
+        "time":time
+    
+    
+    }
+    ,options: Options(headers: {"Authorization": model.token})
+    );
+
+setState(() {
+ loading = false; 
+});
+
+if(response.data["status"]){
+
+getData();
+                 Toast.show("Created Successfully",context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+
+
+}
+
+else{
+
+                                     showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          content: new Text("Something wrong. Try again..."),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Ok"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  
+}
+
+    
+  } catch (e) {
+    print(e);
+  }
+}
+
+
 
 
   @override
-  void initState() {
-    getData();
-    _dropDownMenuItems = buildAndGetDropDownMenuItems(_fruits);
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return new Scaffold(
+      appBar: new AppBar(title: new Text("Create Group"),
+      centerTitle: true,),
+      body: new  ListView(
 
-    _selectedFruit = _dropDownMenuItems[1].value;
+         children: <Widget>[
+Padding(padding: EdgeInsets.all(25),),
 
-    super.initState();
-  }
+          Text("Group Name",style: new TextStyle(fontSize: 18,fontWeight: FontWeight.bold),textAlign: TextAlign.center,),
 
-  List<DropdownMenuItem<String>> buildAndGetDropDownMenuItems(List fruits) {
-    List<DropdownMenuItem<String>> items = new List();
-    for (String fruit in fruits) {
-      items.add(new DropdownMenuItem(value: fruit, child: new Text(fruit,style: new TextStyle(fontSize: 18,color: Colors.brown),)));
-    }
-    return items;
-  }
+Padding(padding: EdgeInsets.only(left: 20,right: 20),
 
-  void changedDropDownItem(String selectedFruit) {
-    setState(() {
-      _selectedFruit = selectedFruit;
-    });
-  }
-var open =false;
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-
-
-    appBar: PreferredSize(
-          preferredSize: Size.fromHeight(50.0),
-
-          
-          child: AppBar(
-
-            
-      backgroundColor: Colors.green[200],
-       actions: <Widget>[
-       
-        new IconButton(icon: new Icon(Icons.add,color: Colors.pink,),
-              onPressed: (){
-
-              
-                Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new SearchView()));
-
+child:  new TextField(
+              autofocus: true,
+              textAlign: TextAlign.center,
+              style: TextStyle(color:Colors.brown[700]),
+              decoration: new InputDecoration(
+                  // labelText: 'Group Name',
+                  
+                  //  hintText: 'eg. Juventus F.C.'
+                  
+                   
+                   ),
+              onChanged: (value) {
+                groupname = value;
               },
-              ),  new IconButton(icon: new Icon(Icons.edit,color: Colors.blue,),
-              onPressed: (){
+            )
 
-              _pc.open();
-                // Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new SearchView()));
-
-              },
-              ),
-              
-              
-              
-              
-              ],
-      title: Text("Group Products",style: TextStyle(fontSize: 25,color: Colors.black87,fontWeight: FontWeight.bold),),
-      // centerTitle: true,
-     elevation: 0.0,
-    ), 
-    ),
-    
-    
-    
-    backgroundColor: Colors.grey[300],
-
-
-
-
-    body:loading?SpinKitThreeBounce(
-  color: Colors.pink,
-  size: 50.0,
-  
-): SlidingUpPanel(
-minHeight:44,
-maxHeight: MediaQuery.of(context).size.height-185,
-color:Colors.green[200],
-// border: Border.all(color:Colors.black, width: 2),
-      backdropColor: null,
-borderRadius: BorderRadius.only(topRight: Radius.circular(100),topLeft: Radius.circular(100),),
-controller: _pc,
-// onPanelClosed:(){
-// setState(() {
-//  open = !open; 
-// });
-
-// },
-      panel:SingleChildScrollView(
-
-        child: Column(
-        children: <Widget>[
-Padding(padding: EdgeInsets.all(6),),
-
-GestureDetector(
-
-onTap: (){
-
-   setState(() {
-      open = !open; 
-
-      if(open){
-
-_pc.open();
-
-      }
-
-      else{
-
-        _pc.close();
-      }
-     });
-
-
-
-},
-      child:       new Text('View/Edit Info',style: new TextStyle(fontSize: 25,color: Colors.grey[900]),),
-  
-),
-           
-Padding(padding: EdgeInsets.all(10),),
-
-new Row(
-  mainAxisAlignment: MainAxisAlignment.spaceAround,
-children: <Widget>[
-
-
-Text("Status",style: new TextStyle(fontSize: 18),),
-new DropdownButton(
-    
-                value: _selectedFruit,
-                items: _dropDownMenuItems,
-                onChanged: changedDropDownItem,
-                
-              ),
- 
-],
-
-
-),
-
+,),
 
 
  
-Padding(padding: EdgeInsets.all(5),),
+Padding(padding: EdgeInsets.all(22),),
 
 Text("Days",style: new TextStyle(fontSize: 18,fontWeight: FontWeight.bold),textAlign: TextAlign.center,),
 
@@ -473,11 +389,11 @@ Padding(padding: EdgeInsets.all(7),),
 
 
 
-Padding(padding: EdgeInsets.all(10),),
+Padding(padding: EdgeInsets.all(15),),
 
 Text("Time",style: new TextStyle(fontSize: 18,fontWeight: FontWeight.bold),textAlign: TextAlign.center,),
 
-Padding(padding: EdgeInsets.all(5),),
+Padding(padding: EdgeInsets.all(7),),
 
 
 
@@ -540,266 +456,170 @@ Padding(padding: EdgeInsets.all(5),),
           ),
         
 
-       ],
-
-        )
-      ),
 
 
 
 
-      body:nodata?Center(child:Text("No one product added yet now")):
-      new Column(
 
-        children: <Widget>[
-         
-  
 
- new Expanded(
-  child:new ListView.builder(
-        itemCount: response.data["result"].length,
-       
-        itemBuilder: (BuildContext context, int index) {
-          return
-          
-          //  new GestureDetector(
-new Column(
 
-  children: <Widget>[
- 
-  new Card(
-             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
+
+
+
+
+
+
+
+
+Padding(padding: EdgeInsets.all(10),
+),
+
+Padding(padding: EdgeInsets.only(right: 50,left: 50,top:10,bottom: 10),
+
+child: ButtonTheme(
+  minWidth: 11.0,
+  buttonColor: Colors.green[600],
+  // height: 100.0,
+             child: RaisedButton(
                 
-              ),
-elevation: 5.0,
-// semanticContainer: true,
-          // clipBehavior: Clip.antiAliasWithSaveLayer,
-  margin:  EdgeInsets.all(12.0),
+            child:loading?            SizedBox(
+                child: CircularProgressIndicator( valueColor: new AlwaysStoppedAnimation<Color>(Colors.green[200],),strokeWidth: 3.0),
+                height: 18.0,
+                width: 18.0,
+               
+              ): Text('Create',style: new TextStyle(color: Colors.white),),
 
+            onPressed:loading?null: () {
 
+              if(groupname.length>0){
 
-child: new Column(
 
 
 
-children: <Widget>[
 
+                    if(monVal || tuVal || wedVal || thuVal || friVal || satVal || sunVal){
 
 
-  Row(
 
-children: <Widget>[
 
- Expanded(
-          flex: 4, // 
-child: Image.network(response.data["result"][index]["img_url"],
-            // fit: BoxFit.fill,
-         
-           height: 80,
-           width: 80,
-          ),
- ),
 
-  //imgeo
 
+                      if(mor || eve){
 
 
-  Expanded(
-          flex: 4, // 
-child: new Column(
-    
-children: <Widget>[
 
 
-Align(
+print(groupname);
+print(days);
 
-  alignment: Alignment.center,
+setState(() {
+ loading = true; 
+});
 
-  child: new Text(response.data["result"][index]["name"], overflow: TextOverflow.ellipsis,style: new TextStyle(fontSize: 18,fontWeight: FontWeight.bold),
-    maxLines: 2,),
-),
 
+Create(context);
 
+                      }
 
 
+                      else{
 
-Padding(padding: EdgeInsets.only(top:18,right: 10),
-
-child: Row(
-mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  children: <Widget>[
-
-
-    Text(response.data["result"][index]["price"].toString()),
-
-    Text(response.data["result"][index]["unit"])
-  ],
-)),
-
-
-
-
-],
-
-
-
-  )
-
-  )
-],
-
-
-
-  ),
-
-
-   Padding(padding: EdgeInsets.all(1),
-                                
-                                
-                               child: Divider(
-                                  height: 10.0,
-                                  color: Colors.redAccent,
-                                ),
-                                ),
-
-
-
-
-new Row(
-mainAxisAlignment: MainAxisAlignment.spaceAround,
-  children: <Widget>[
-
- Row(
-
-mainAxisAlignment: MainAxisAlignment.center,
-
-    children: <Widget>[
- 
-
-
-      SizedBox(
-  width: 50, // specific value
-  child: RaisedButton(
-color: Colors.green,
-
-    
-
-
-        child: Text('+',textAlign: TextAlign.center,style: new TextStyle(fontSize: 25,color: Colors.white),),
-      ),
-),
-
-
-Padding(padding: EdgeInsets.only(left: 15,right: 15),
-child: Text(response.data["result"][index]["qty"].toString(),style: new TextStyle(fontSize: 15),),),
-
-     SizedBox(
-  width: 50, // specific value
-  child: RaisedButton(
-color: Colors.red,
-    
-
-        child: Text('-',textAlign: TextAlign.center,style: new TextStyle(fontSize: 35,color: Colors.white),),
-      ),
-),
-
-
-
-
-    ],
-  ),
-
-
-
-
-RaisedButton(onPressed: null,
-
-child:Text("Remove"))
-
-  ],
-),
-
- 
-],
-
-
-
-
-
-
-
-),
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-              
+                                    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          content: new Text("Please choose atleast one Time"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Ok"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
             ),
-
-  ],
-);
- 
-                   
-        }),
-
- ),
-
-
-        
-        ],
-      ),
-      
-      
-    
-    ),
+          ],
+        );
+      },
+    );
   
-//   floatingActionButton: new FloatingActionButton(
-//       elevation: 0.0,
+                      }
+
+
+
+
+                    }
+
+                    else{
+
+                                  showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          content: new Text("Please Choose atleast one Day"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Ok"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  
+                    }
+
+
+
+
+              }
+
+
+              else{
+
+
+
+                showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          content: new Text("Please Enter Valid Groupname"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Ok"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  
+              }
+
+
+
+
+            },
+          ),
+
+    )    
+ 
+),
+             
+   ],             
+  
+        ),
      
-//       child: new Icon(Icons.edit),
-//       backgroundColor:Colors.green[700],
-//       onPressed: (){
-
-
-//         setState(() {
-//       open = !open; 
-
-//       if(open){
-
-// _pc.open();
-
-//       }
-
-//       else{
-
-//         _pc.close();
-//       }
-//      });
-//       }
-//     ),
- 
-  
-  );
-
- 
-
-}
+     
+      
+    );
+  }
 }
