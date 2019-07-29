@@ -30,7 +30,7 @@ var myname= "",pincode="",area="",mobile="",token="",myid="";
 var no_data=false;
 var loading=true;
 var base_url = "";
-
+var staTus = [];
 
 void productx(idx) async {
   setState(() {
@@ -38,14 +38,15 @@ void productx(idx) async {
 });
   
   try {
+CounterModel model= ScopedModel.of(context);
    
 Response response
     = await Dio().post(base_url+"api/removecart",data: {
-       "customer_id":myid,
+       "customer_id":model.myid,
         "product_id":idx,
     
     }
-    ,options: Options(headers: {"Authorization": token})
+    ,options: Options(headers: {"Authorization": model.token})
     );
     print(response.data);
     
@@ -75,43 +76,133 @@ setState(() {
 }
 
 
-getSharedPreferences() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+
+
+void add(idx,index) async {
+ 
   
-model = ScopedModel.of(context);
- print(model.cart);
+  try {
+CounterModel model= ScopedModel.of(context);
+   
+Response response
+    = await Dio().post(model.url+"api/qty_increase",data: {
+       "customer_id":model.myid,
+        "product_id":idx,
+    
+    }
+    ,options: Options(headers: {"Authorization": model.token})
+    );
+    print(response.data);
 
- setState(() {
-  myid =  prefs.getString("myid");
- 
- 
-  token=prefs.getString("token");
- 
- base_url = model.url; 
+    setState(() {
 
- });
-// productx(model.url,model.productlist);
 
+staTus[index] = false ;
+
+
+    });
+    
+    if(response.data["status"])
+    {
+     
+
+     
+setState(() {
+     model.cart[index]["my_qty"] =model.cart[index]["my_qty"]+1;
+    });
+         
+     
+
+   }
+
+    else{
+
+                 Toast.show("Something wrong",context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+
+
+    }
+    
+  } catch (e) {
+    print(e);
   }
+}
 
 
 
+
+
+
+
+
+void minus(idx,index) async {
+ 
+  
+  try {
+CounterModel model= ScopedModel.of(context);
+   
+Response response
+    = await Dio().post(model.url+"api/qty_decrease",data: {
+       "customer_id":model.myid,
+        "product_id":idx,
+    
+    }
+    ,options: Options(headers: {"Authorization": model.token})
+    );
+    print(response.data);
+
+    setState(() {
+
+
+staTus[index] = false ;
+
+
+    });
+    
+    if(response.data["status"])
+    {
+     
+
+     
+setState(() {
+     model.cart[index]["my_qty"] =model.cart[index]["my_qty"]-1;
+
+     
+    });
+         
+     
+
+   }
+
+    else{
+
+                 Toast.show("Something wrong",context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+
+
+    }
+    
+  } catch (e) {
+    print(e);
+  }
+}
 
 
 
 // CounterModel model;
    @override
   void initState() {
-// model= ScopedModel.of(context);
-//     print(stream.cart.toString());
-//     print(stream.cart.length.toString());
-getSharedPreferences();
+
     super.initState();
   }
 
  @override
     Widget build(BuildContext context) {
 CounterModel stream= ScopedModel.of(context);
+
+for (int i =0;i<stream.cart.length;i++){
+
+  staTus.add(false);
+}
 
       return new Container(
         decoration:   BoxDecoration(
@@ -308,13 +399,16 @@ Padding(padding: EdgeInsets.only(left: 10)),
 color: Colors.green,
  shape: new RoundedRectangleBorder(
          borderRadius: new BorderRadius.circular(100.0)),
-        onPressed: (){
+        onPressed:  staTus[index]?null:(){
 
           if(stream.cart[index]["my_qty"]<stream.cart[index]["on_move"]){
 
 setState(() {
-     stream.cart[index]["my_qty"] =stream.cart[index]["my_qty"]+1;
-    });
+             staTus[index] =  true;
+            });
+
+add(stream.cart[index]["product_id"],index);
+
 
 
           }
@@ -337,7 +431,11 @@ setState(() {
 
 
 Padding(padding: EdgeInsets.only(left: 15,right: 15),
-child: Text(stream.cart[index]["my_qty"].toString(),style: new TextStyle(fontSize: 20),),),
+child:                                                     staTus[index]?SpinKitDoubleBounce(
+  color: Colors.black,
+  size: 15.0,
+  
+): Text(stream.cart[index]["my_qty"].toString(),style: new TextStyle(fontSize: 20),),),
 
      SizedBox(
   width: 40, // specific value
@@ -345,15 +443,20 @@ child: Text(stream.cart[index]["my_qty"].toString(),style: new TextStyle(fontSiz
 color: Colors.blue,
 shape: new RoundedRectangleBorder(
          borderRadius: new BorderRadius.circular(100.0)),
-        onPressed: (){
+        onPressed: staTus[index]?null: (){
 
           if(stream.cart[index]["my_qty"] > 1){
 
-  setState(() {
+minus(stream.cart[index]["product_id"],index);
 
-     stream.cart[index]["my_qty"] =stream.cart[index]["my_qty"]-1;
-    });
-          }
+
+            setState(() {
+             staTus[index] =  true;
+            });
+
+
+
+   }
 
 
           

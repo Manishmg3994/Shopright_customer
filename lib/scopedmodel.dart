@@ -117,6 +117,9 @@ _qty = no;
 
 
 
+
+
+
  List _group =new List();
   List get group =>_group;
 
@@ -129,6 +132,27 @@ _qty = no;
 
 
 
+
+
+ List _groupProduct =new List();
+  List get groupProduct =>_groupProduct;
+
+  void SetGroupProduct(data){
+
+ _groupProduct=data;
+    notifyListeners();
+
+  }
+
+
+  void RemoveGroupProduct(key){
+
+    _groupProduct.removeWhere((data) =>  
+    data["product_id"] == key
+    
+    );
+      notifyListeners();
+  }
 
 
 

@@ -71,8 +71,6 @@ setState(() {
 
 if(response.data["status"]){
 
-model.SetGroup(response.data["result"]);
-
 for(int i =0; i< response.data["result"].length;i++){
 
 

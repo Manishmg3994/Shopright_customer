@@ -28,6 +28,10 @@ bool sunVal = false;
   bool mor = false;
   bool eve = false;
 
+
+var daysList = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+var daysValue = [false,false,false,false,false,false,false];
+var timeValue = [false,false];
   var days = [];
 var time = [];
 var loading = false;
@@ -101,8 +105,8 @@ void Create(context) async {
      data: {
        "customer_id":model.myid,
         "name":groupname,
-         "frequent":days,
-        "time":time
+         "frequent":daysValue,
+        "time":timeValue
     
     
     }
@@ -205,49 +209,32 @@ Padding(padding: EdgeInsets.all(7),),
                 children: <Widget>[
                   Text("Mon"),
                   Checkbox(
-                    value: monVal,
+                    value: daysValue[0],
                     onChanged: (bool value) {
                       
-                      if(value){
-
-                        days.add(1);
-
-                      }
-                      else{
-
-
-                        days.remove(1);
-                      }
-
-
                       setState(() {
-                        monVal = value;
+                       daysValue[0] = value;
                       });
                     },
                   ),
                 ],
               ),
+ 
+
+
+ 
               // [Tuesday] checkbox
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Text("Tue"),
                   Checkbox(
-                    value: tuVal,
+                    value: daysValue[1],
                     onChanged: (bool value) {
 
-                       if(value){
-
-                        days.add(2);
-
-                      }
-                      else{
-
-
-                        days.remove(2);
-                      }
+                      
                       setState(() {
-                        tuVal = value;
+                        daysValue[1] = value;
                       });
                     },
                   ),
@@ -259,22 +246,12 @@ Padding(padding: EdgeInsets.all(7),),
                 children: <Widget>[
                   Text("Wed"),
                   Checkbox(
-                    value: wedVal,
+                    value: daysValue[2],
                     onChanged: (bool value) {
 
-                       if(value){
-
-                        days.add(3);
-
-                      }
-                      else{
-
-
-                        days.remove(3);
-                      }
-
+                      
                       setState(() {
-                        wedVal = value;
+                        daysValue[2] = value;
                       });
                     },
                   ),
@@ -285,21 +262,12 @@ Padding(padding: EdgeInsets.all(7),),
                 children: <Widget>[
                   Text("Thu"),
                   Checkbox(
-                    value: thuVal,
+                    value: daysValue[3],
                     onChanged: (bool value) {
- if(value){
-
-                        days.add(4);
-
-                      }
-                      else{
-
-
-                        days.remove(4);
-                      }
+ 
 
                       setState(() {
-                        thuVal = value;
+                        daysValue[3] = value;
                       });
                     },
                   ),
@@ -310,21 +278,12 @@ Padding(padding: EdgeInsets.all(7),),
                 children: <Widget>[
                   Text("Fri"),
                   Checkbox(
-                    value: friVal,
+                    value: daysValue[4],
                     onChanged: (bool value) {
 
-                       if(value){
-
-                        days.add(5);
-
-                      }
-                      else{
-
-
-                        days.remove(5);
-                      }
+                    
                       setState(() {
-                        friVal = value;
+                        daysValue[4] = value;
                       });
                     },
                   ),
@@ -335,21 +294,11 @@ Padding(padding: EdgeInsets.all(7),),
                 children: <Widget>[
                   Text("Sat"),
                   Checkbox(
-                    value: satVal,
+                    value: daysValue[5],
                     onChanged: (bool value) {
 
-                       if(value){
-
-                        days.add(6);
-
-                      }
-                      else{
-
-
-                        days.remove(6);
-                      }
                       setState(() {
-                        satVal = value;
+                        daysValue[5] = value;
                       });
                     },
                   ),
@@ -360,20 +309,11 @@ Padding(padding: EdgeInsets.all(7),),
                 children: <Widget>[
                   Text("Sun"),
                   Checkbox(
-                    value: sunVal,
+                    value: daysValue[6],
                     onChanged: (bool value) {
-                       if(value){
-
-                        days.add(7);
-
-                      }
-                      else{
-
-
-                        days.remove(7);
-                      }
+                     
                       setState(() {
-                        sunVal = value;
+                        daysValue[6] = value;
                       });
                     },
                   ),
@@ -406,20 +346,11 @@ Padding(padding: EdgeInsets.all(7),),
                 children: <Widget>[
                   Text("Morning"),
                   Checkbox(
-                    value: mor,
+                    value: timeValue[0],
                     onChanged: (bool value) {
-                      if(value){
-
-                        time.add(1);
-
-                      }
-                      else{
-
-
-                        time.remove(1);
-                      }
+                     
                       setState(() {
-                        mor = value;
+                        timeValue[0] = value;
                       });
                     },
                   ),
@@ -431,21 +362,12 @@ Padding(padding: EdgeInsets.all(7),),
                 children: <Widget>[
                   Text("Evening"),
                   Checkbox(
-                    value: eve,
+                    value: timeValue[1],
                     onChanged: (bool value) {
 
-                       if(value){
-
-                        time.add(2);
-
-                      }
-                      else{
-
-
-                        time.remove(2);
-                      }
+                      
                       setState(() {
-                        eve = value;
+                        timeValue[1] = value;
                       });
                     },
                   ),
@@ -497,14 +419,14 @@ child: ButtonTheme(
 
 
 
-                    if(monVal || tuVal || wedVal || thuVal || friVal || satVal || sunVal){
+                    if(daysValue.contains(true)){
 
 
 
 
 
 
-                      if(mor || eve){
+                      if(timeValue.contains(true)){
 
 
 

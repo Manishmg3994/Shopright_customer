@@ -396,7 +396,10 @@ final key = new GlobalKey<ScaffoldState>();
                   children: <Widget>[
                     new IconButton(icon: new Icon(Icons.shopping_cart),
                       onPressed: () {
-                        _scaffoldKey3.currentState.openEndDrawer();
+                        // _scaffoldKey3.currentState.openEndDrawer();
+
+                         Scaffold.of(context).openEndDrawer(); 
+
                       },
                     ),
                   

@@ -253,7 +253,7 @@ CounterModel model = ScopedModel.of(context);
 
     // _selectedFruit = _dropDownMenuItems[counter.getCountr()].value;
 
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  // final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
     return new Scaffold(
 backgroundColor: Colors.grey[200],
@@ -316,7 +316,9 @@ backgroundColor: Colors.grey[200],
                   children: <Widget>[
                     new IconButton(icon: new Icon(Icons.shopping_cart),
                       onPressed: () {
-                        _scaffoldKey.currentState.openEndDrawer();
+                        // _scaffoldKey.currentState.openEndDrawer();
+
+                         Scaffold.of(context).openEndDrawer(); 
                       },
                     ),
                   

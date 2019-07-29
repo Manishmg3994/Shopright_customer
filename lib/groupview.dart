@@ -25,7 +25,7 @@ PanelController _pc = new PanelController();
 
   List<DropdownMenuItem<String>> _dropDownMenuItems;
   String _selectedFruit;
-
+  bool load_status =false;
   bool monVal = false;
   bool tuVal = false;
   bool wedVal = false;
@@ -35,11 +35,18 @@ bool thuVal = false;
 bool sunVal = false;
   bool mor = false;
   bool eve = false;
-
+var status = false;
   var days = [];
 var time = [];
 var loading = true;
-var nodata = false;
+var nodata = true;
+
+var daysValue = [];
+var timeValue = [];
+
+
+var daysLoading = [false,false,false,false,false,false,false,];
+var timeLoading = [false,false,false,false,false,false,false,];
   Response response;
 
 
@@ -78,13 +85,24 @@ setState(() {
 if(response.data["status"]){
 
 
-if(response.data["result"].length==0){
+if(response.data["result"].length==0 || response.data["result"][0]["product"].length==0   ){
 
+
+
+
+}
+
+else{
 
 setState(() {
- nodata = true; 
+daysValue = response.data["result"][0]["_id"]["days"];
+timeValue = response.data["result"][0]["_id"]["time"];
+ status = response.data["result"][0]["_id"]["status"];
+ nodata = false; 
+
 });
 
+  model.SetGroupProduct(response.data["result"][0]["product"]);
 }
 
 
@@ -126,29 +144,414 @@ else{
 
 
 
+void incr( pro_id,index) async {
+
+ 
+ 
+   var dio = Dio();
+  try {
+   
+    // print("response.data");
+    CounterModel model = ScopedModel.of(context);
+    
+
+print(pro_id);
+
+print(model.myid);
+
+print(model.groupProduct);
+
+     response = await dio.post(model.url+"api/group_qty_add",
+     
+     data: {
+       "customer_id":model.myid,
+
+        "product_id":pro_id,
+ 
+    }
+    ,options: Options(headers: {"Authorization": model.token})
+    );
+
+print(response.data);
+
+
+
+if(response.data["status"]){
+
+setState(() {
+ model.groupProduct[index]["qty"] =  model.groupProduct[index]["qty"]+1;
+});
+}
+
+else{
+
+                 Toast.show("Something wrong",context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+
+}
+
+
+
+
+
+
+    
+  } catch (e) {
+    print(e);
+  }
+}
+
+
+
+
+
+
+
+void decr(product_id,index) async {
+
+ 
+   var dio = Dio();
+  try {
+   
+    // print("response.data");
+    CounterModel model = ScopedModel.of(context);
+    // print(model.token);
+    // print(model.pincode);
+    // print(model.area);
+ 
+ 
+     response = await dio.post(model.url+"api/group_qty_minus",
+     
+     data: {
+       "customer_id":model.myid,
+
+      "product_id":product_id,
+ 
+    }
+    ,options: Options(headers: {"Authorization": model.token})
+    );
+
+print(response.data);
+
+
+
+
+
+if(response.data["status"]){
+
+setState(() {
+ model.groupProduct[index]["qty"] =  model.groupProduct[index]["qty"]-1;
+});
+}
+
+else{
+
+                 Toast.show("Something wrong",context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+
+}
+
+
+
+
+    
+  } catch (e) {
+    print(e);
+  }
+}
+
+
+
+
+
+
+
+void remove(product_id) async {
+ 
+   var dio = Dio();
+  try {
+   
+    // print("response.data");
+    CounterModel model = ScopedModel.of(context);
+    // print(model.token);
+    // print(model.pincode);
+    // print(model.area);
+ 
+ 
+     response = await dio.post(model.url+"api/remove_product",
+     
+     data: {
+       "customer_id":model.myid,
+  "group_id":model.groupid,
+      "product_id":product_id,
+ 
+    }
+    ,options: Options(headers: {"Authorization": model.token})
+    );
+
+print(response.data);
+
+
+
+
+
+if(response.data["status"]){
+
+
+model.RemoveGroupProduct(product_id);
+
+
+}
+
+else{
+
+                 Toast.show("Something wrong",context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+
+}
+
+
+
+
+    
+  } catch (e) {
+    print(e);
+  }
+}
+
+
+
+
+
+
+void delete() async {
+ 
+   var dio = Dio();
+  try {
+   
+    // print("response.data");
+    CounterModel model = ScopedModel.of(context);
+    // print(model.token);
+    // print(model.pincode);
+    // print(model.area);
+ 
+ 
+     response = await dio.post(model.url+"api/delete_group",
+     
+     data: {
+       "customer_id":model.myid,
+  "group_id":model.groupid
+    
+ 
+    }
+    ,options: Options(headers: {"Authorization": model.token})
+    );
+
+print(response.data);
+
+
+
+
+
+if(response.data["status"]){
+
+
+goHome();
+
+
+}
+
+else{
+
+                 Toast.show("Something wrong",context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+
+}
+
+
+
+
+    
+  } catch (e) {
+    print(e);
+  }
+}
+
+
+
+
+
+void goHome() async {
+ 
+   var dio = Dio();
+  try {
+   
+    CounterModel model = ScopedModel.of(context);
+   
+ 
+ 
+     response = await dio.post(model.url+"api/view_group",
+     
+     data: {
+       "customer_id":model.myid
+ 
+    }
+    ,options: Options(headers: {"Authorization": model.token})
+    );
+
+
+setState(() {
+ loading = false; 
+});
+
+if(response.data["status"]){
+
+model.SetGroup(response.data["result"]);
+                Navigator.of(context).pop();
+
+
+}
+
+else{
+
+ 
+
+}
+
+    
+  } catch (e) {
+    print(e);
+  }
+}
+
+
+
+void setStatus(state) async {
+ 
+   var dio = Dio();
+  try {
+   
+    CounterModel model = ScopedModel.of(context);
+   
+ 
+ 
+     response = await dio.post(model.url+"api/block_group",
+     
+     data: {
+       "customer_id":model.myid,
+    "group_id":model.groupid,
+    "status":state,
+    
+    }
+    ,options: Options(headers: {"Authorization": model.token})
+    );
+
+
+// print(response.data);
+
+if(response.data["status"]){
+
+setState(() {
+ status = state; 
+ load_status= false;
+});
+
+
+}
+
+else{
+
+                 Toast.show("Operation failed",context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+ 
+
+}
+
+    
+  } catch (e) {
+    print(e);
+  }
+}
+
+
+
+
+
+
+void changeTime(fre,pos,state) async {
+ 
+   var dio = Dio();
+  try {
+   
+    CounterModel model = ScopedModel.of(context);
+   
+ 
+ 
+     response = await dio.post(model.url+"api/frequent_change",
+     
+     data: {
+       "customer_id":model.myid,
+    "group_id":model.groupid,
+    "status":{fre+"."+pos:state},
+    
+    }
+    ,options: Options(headers: {"Authorization": model.token})
+    );
+
+
+// print(response.data);
+
+if(response.data["status"]){
+
+  if(fre == "frequent"){
+
+setState(() {
+ daysLoading[int.parse(pos)]= false;
+ timeLoading[int.parse(pos)]= false;
+
+ daysValue[int.parse(pos)] =state;
+});
+
+  }
+
+
+  else{
+
+setState(() {
+ daysLoading[int.parse(pos)]= false;
+ timeLoading[int.parse(pos)]= false;
+
+ timeValue[int.parse(pos)] =state;
+});
+
+  }
+
+
+
+
+}
+
+else{
+
+                 Toast.show("Operation failed",context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+ 
+
+}
+
+    
+  } catch (e) {
+    print(e);
+  }
+}
+
+
+
+
+
+
   @override
   void initState() {
     getData();
-    _dropDownMenuItems = buildAndGetDropDownMenuItems(_fruits);
-
-    _selectedFruit = _dropDownMenuItems[1].value;
-
+   
     super.initState();
   }
 
-  List<DropdownMenuItem<String>> buildAndGetDropDownMenuItems(List fruits) {
-    List<DropdownMenuItem<String>> items = new List();
-    for (String fruit in fruits) {
-      items.add(new DropdownMenuItem(value: fruit, child: new Text(fruit,style: new TextStyle(fontSize: 18,color: Colors.brown),)));
-    }
-    return items;
-  }
 
-  void changedDropDownItem(String selectedFruit) {
-    setState(() {
-      _selectedFruit = selectedFruit;
-    });
-  }
 var open =false;
 @override
 Widget build(BuildContext context) {
@@ -205,7 +608,7 @@ Widget build(BuildContext context) {
 ): SlidingUpPanel(
 minHeight:44,
 maxHeight: MediaQuery.of(context).size.height-185,
-color:Colors.green[200],
+color:Colors.blue[600],
 // border: Border.all(color:Colors.black, width: 2),
       backdropColor: null,
 borderRadius: BorderRadius.only(topRight: Radius.circular(100),topLeft: Radius.circular(100),),
@@ -244,25 +647,41 @@ _pc.open();
 
 
 },
-      child:       new Text('View/Edit Info',style: new TextStyle(fontSize: 25,color: Colors.grey[900]),),
+      child:       new Text('View/Edit Info',style: new TextStyle(fontSize: 25,color: Colors.black87),),
   
 ),
-           
-Padding(padding: EdgeInsets.all(10),),
 
-new Row(
+  
+           
+nodata ? Padding(padding: EdgeInsets.all(10)):Padding(padding: EdgeInsets.all(10),),
+
+nodata ? Padding(padding: EdgeInsets.all(10)):new Row(
   mainAxisAlignment: MainAxisAlignment.spaceAround,
 children: <Widget>[
 
 
-Text("Status",style: new TextStyle(fontSize: 18),),
-new DropdownButton(
-    
-                value: _selectedFruit,
-                items: _dropDownMenuItems,
-                onChanged: changedDropDownItem,
-                
-              ),
+Text("Status",style: new TextStyle(fontSize: 18,color: Colors.yellowAccent[700],fontWeight: FontWeight.bold)),
+
+
+
+load_status?SpinKitThreeBounce(
+  color: Colors.white,
+  size: 20.0,
+  
+):
+
+Switch(
+  value: status,
+  onChanged: (value) {
+    setState(() {
+      load_status = true;
+    });
+
+    setStatus(value);
+  },
+  activeTrackColor: Colors.pink[200], 
+  activeColor: Colors.pink[700],
+),
  
 ],
 
@@ -271,193 +690,170 @@ new DropdownButton(
 
 
 
- 
-Padding(padding: EdgeInsets.all(5),),
+nodata ? Padding(padding: EdgeInsets.all(10)):Padding(padding: EdgeInsets.all(5),),
 
-Text("Days",style: new TextStyle(fontSize: 18,fontWeight: FontWeight.bold),textAlign: TextAlign.center,),
+(nodata || !status ) ? Padding(padding: EdgeInsets.all(10)):Text("Days",style: new TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color: Colors.yellowAccent[700]),textAlign: TextAlign.center,),
 
-Padding(padding: EdgeInsets.all(7),),
+(nodata || !status ) ? Padding(padding: EdgeInsets.all(1)):Padding(padding: EdgeInsets.all(7),),
 
-
-
- Row(
+(nodata || !status ) ? Padding(padding: EdgeInsets.all(1)): Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               // [Monday] checkbox
-              Column(
+                                                     daysLoading[0]?SpinKitDoubleBounce(
+  color: Colors.white,
+  size: 25.0,
+  
+):    Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Text("Mon"),
-                  Checkbox(
-                    value: monVal,
+                  Text("Mon",style: TextStyle(color: Colors.white), ),
+     Checkbox(
+                    value: daysValue[0],
                     onChanged: (bool value) {
                       
-                      if(value){
+                     
 
-                        days.add(1);
-
-                      }
-                      else{
-
-
-                        days.remove(1);
-                      }
+                     changeTime("frequent","0",value);
 
 
                       setState(() {
-                        monVal = value;
+                        daysLoading[0] = true;
                       });
                     },
                   ),
                 ],
               ),
               // [Tuesday] checkbox
-              Column(
+                                                  daysLoading[1]?SpinKitDoubleBounce(
+  color: Colors.white,
+  size: 25.0,
+  
+):        Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Text("Tue"),
-                  Checkbox(
-                    value: tuVal,
+                  Text("Tue",style: TextStyle(color: Colors.white),),
+    Checkbox(
+                    value: daysValue[1],
                     onChanged: (bool value) {
+                     changeTime("frequent","1",value);
 
-                       if(value){
-
-                        days.add(2);
-
-                      }
-                      else{
-
-
-                        days.remove(2);
-                      }
+                    
                       setState(() {
-                        tuVal = value;
+                        daysLoading[1] = true;
                       });
                     },
                   ),
                 ],
               ),
               // [Wednesday] checkbox
-              Column(
+                                                     daysLoading[2]?SpinKitDoubleBounce(
+  color: Colors.white,
+  size: 25.0,
+  
+):      Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Text("Wed"),
-                  Checkbox(
-                    value: wedVal,
+                  Text("Wed",style: TextStyle(color: Colors.white),),
+   Checkbox(
+                    value: daysValue[2],
                     onChanged: (bool value) {
 
-                       if(value){
+                                        changeTime("frequent","2",value);
 
-                        days.add(3);
-
-                      }
-                      else{
-
-
-                        days.remove(3);
-                      }
-
+                    
                       setState(() {
-                        wedVal = value;
+                        daysLoading[2] = true;
                       });
                     },
                   ),
                 ],
               ),
-              Column(
+                                                      daysLoading[3]?SpinKitDoubleBounce(
+  color: Colors.white,
+  size: 25.0,
+  
+):    Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Text("Thu"),
-                  Checkbox(
-                    value: thuVal,
+                  Text("Thu",style: TextStyle(color: Colors.white),),
+    Checkbox(
+                    value: daysValue[3],
                     onChanged: (bool value) {
- if(value){
+ 
+                     changeTime("frequent","3",value);
 
-                        days.add(4);
-
-                      }
-                      else{
-
-
-                        days.remove(4);
-                      }
-
+                    
                       setState(() {
-                        thuVal = value;
+                        daysLoading[3] = true;
                       });
                     },
                   ),
                 ],
               ),
-              Column(
+                                                     daysLoading[4]?SpinKitDoubleBounce(
+  color: Colors.white,
+  size: 25.0,
+  
+):    Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Text("Fri"),
-                  Checkbox(
-                    value: friVal,
+                  Text("Fri",style: TextStyle(color: Colors.white),),
+     Checkbox(
+                    value: daysValue[4],
                     onChanged: (bool value) {
 
-                       if(value){
+                   
+                                          changeTime("frequent","4",value);
 
-                        days.add(5);
-
-                      }
-                      else{
-
-
-                        days.remove(5);
-                      }
+                    
                       setState(() {
-                        friVal = value;
+                        daysLoading[4] = true;
                       });
                     },
                   ),
                 ],
               ),
-              Column(
+                                                    daysLoading[5]?SpinKitDoubleBounce(
+  color: Colors.white,
+  size: 25.0,
+  
+):      Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Text("Sat"),
-                  Checkbox(
-                    value: satVal,
+                  Text("Sat",style: TextStyle(color: Colors.white),),
+    Checkbox(
+                    value: daysValue[5],
                     onChanged: (bool value) {
 
-                       if(value){
+                       
+                                           changeTime("frequent","5",value);
 
-                        days.add(6);
-
-                      }
-                      else{
-
-
-                        days.remove(6);
-                      }
+                    
                       setState(() {
-                        satVal = value;
+                        daysLoading[5] = true;
                       });
                     },
                   ),
                 ],
               ),
-              Column(
+                                       daysLoading[6]?SpinKitDoubleBounce(
+  color: Colors.white,
+  size: 25.0,
+  
+):      Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Text("Sun"),
-                  Checkbox(
-                    value: sunVal,
+                  Text("Sun",style: TextStyle(color: Colors.white),),
+   Checkbox(
+                    value: daysValue[6],
                     onChanged: (bool value) {
-                       if(value){
+                      
+                                          changeTime("frequent","6",value);
 
-                        days.add(7);
-
-                      }
-                      else{
-
-
-                        days.remove(7);
-                      }
+                    
                       setState(() {
-                        sunVal = value;
+                        daysLoading[6] = true;
                       });
                     },
                   ),
@@ -471,65 +867,62 @@ Padding(padding: EdgeInsets.all(7),),
           ),
         
 
+(nodata || !status ) ? Padding(padding: EdgeInsets.all(1)):Padding(padding: EdgeInsets.all(10),),
 
+(nodata || !status ) ? Padding(padding: EdgeInsets.all(1)):Text("Time",style: new TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color: Colors.yellowAccent[700]),textAlign: TextAlign.center,),
 
-Padding(padding: EdgeInsets.all(10),),
-
-Text("Time",style: new TextStyle(fontSize: 18,fontWeight: FontWeight.bold),textAlign: TextAlign.center,),
-
-Padding(padding: EdgeInsets.all(5),),
+(nodata || !status ) ? Padding(padding: EdgeInsets.all(1)):Padding(padding: EdgeInsets.all(5),),
 
 
 
- Row(
+ (nodata || !status ) ? Padding(padding: EdgeInsets.all(1)):Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
               // [Monday] checkbox
-              Column(
+            
+                  timeLoading[0]?SpinKitDoubleBounce(
+  color: Colors.white,
+  size: 25.0,
+  
+):  Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Text("Morning"),
+                  Text("Morning",style: TextStyle(color: Colors.white),),
+                  
+
                   Checkbox(
-                    value: mor,
+                    value: timeValue[0],
                     onChanged: (bool value) {
-                      if(value){
+                    
+                                          changeTime("time","0",value);
 
-                        time.add(1);
-
-                      }
-                      else{
-
-
-                        time.remove(1);
-                      }
+                    
                       setState(() {
-                        mor = value;
+                        timeLoading[0] = true;
                       });
                     },
                   ),
                 ],
               ),
               // [Tuesday] checkbox
-              Column(
+                                      timeLoading[1]?SpinKitDoubleBounce(
+  color: Colors.white,
+  size: 25.0,
+  
+):  Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Text("Evening"),
-                  Checkbox(
-                    value: eve,
+                  Text("Evening",style: TextStyle(color: Colors.white),),
+         Checkbox(
+                    value: timeValue[1],
                     onChanged: (bool value) {
 
-                       if(value){
+                    
+                                          changeTime("time","1",value);
 
-                        time.add(2);
-
-                      }
-                      else{
-
-
-                        time.remove(2);
-                      }
+                    
                       setState(() {
-                        eve = value;
+                        timeLoading[1] = true;
                       });
                     },
                   ),
@@ -539,6 +932,77 @@ Padding(padding: EdgeInsets.all(5),),
            ],
           ),
         
+
+(nodata || !status ) ? Padding(padding: EdgeInsets.all(1)):Padding(padding: EdgeInsets.all(10),),
+
+
+
+
+
+
+
+
+
+
+ Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+
+  RaisedButton(
+color: Colors.red[400],
+ shape: new RoundedRectangleBorder(
+         borderRadius: new BorderRadius.circular(10.0)),
+        onPressed: (){
+                                     showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          content: new Text("Want to Delete this Group?"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Yes"),
+              onPressed: () {
+          delete();
+
+                Navigator.of(context).pop();
+              },
+            ), new FlatButton(
+              child: new Text("No"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+ 
+        },
+
+        child: Text("Delete Group",textAlign: TextAlign.center,style: new TextStyle(fontSize: 18,color: Colors.white),),
+      ),
+
+
+      ],
+          ),
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
        ],
 
@@ -552,12 +1016,23 @@ Padding(padding: EdgeInsets.all(5),),
       new Column(
 
         children: <Widget>[
-         
   
+            
+ ScopedModelDescendant<CounterModel>(
+              builder: (context, child, model) {
+
+                if(model.groupProduct.length ==0){
+
+                  setState(() {
+                   nodata =true; 
+                  });
+                }
+                return
+       
 
  new Expanded(
   child:new ListView.builder(
-        itemCount: response.data["result"].length,
+        itemCount: model.groupProduct.length,
        
         itemBuilder: (BuildContext context, int index) {
           return
@@ -593,7 +1068,7 @@ children: <Widget>[
 
  Expanded(
           flex: 4, // 
-child: Image.network(response.data["result"][index]["img_url"],
+child: Image.network(model.groupProduct[index]["img_url"],
             // fit: BoxFit.fill,
          
            height: 80,
@@ -616,7 +1091,7 @@ Align(
 
   alignment: Alignment.center,
 
-  child: new Text(response.data["result"][index]["name"], overflow: TextOverflow.ellipsis,style: new TextStyle(fontSize: 18,fontWeight: FontWeight.bold),
+  child: new Text(model.groupProduct[index]["name"], overflow: TextOverflow.ellipsis,style: new TextStyle(fontSize: 18,fontWeight: FontWeight.bold),
     maxLines: 2,),
 ),
 
@@ -631,9 +1106,9 @@ mainAxisAlignment: MainAxisAlignment.spaceBetween,
   children: <Widget>[
 
 
-    Text(response.data["result"][index]["price"].toString()),
+    Text(model.groupProduct[index]["price"].toString()),
 
-    Text(response.data["result"][index]["unit"])
+    Text(model.groupProduct[index]["unit"])
   ],
 )),
 
@@ -682,8 +1157,25 @@ mainAxisAlignment: MainAxisAlignment.center,
   width: 50, // specific value
   child: RaisedButton(
 color: Colors.green,
+shape: new RoundedRectangleBorder(
+         borderRadius: new BorderRadius.circular(100.0)),
+    onPressed: (){
 
-    
+
+if(model.groupProduct[index]["qty"] >9){
+
+
+                 Toast.show("Maximum Qty :10",context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+
+
+}
+
+else{
+      incr(model.groupProduct[index]["product_id"],index);
+
+
+}
+    },
 
 
         child: Text('+',textAlign: TextAlign.center,style: new TextStyle(fontSize: 25,color: Colors.white),),
@@ -692,13 +1184,28 @@ color: Colors.green,
 
 
 Padding(padding: EdgeInsets.only(left: 15,right: 15),
-child: Text(response.data["result"][index]["qty"].toString(),style: new TextStyle(fontSize: 15),),),
+child: Text(model.groupProduct[index]["qty"].toString(),style: new TextStyle(fontSize: 15),),),
 
      SizedBox(
   width: 50, // specific value
   child: RaisedButton(
-color: Colors.red,
-    
+color: Colors.blue,
+shape: new RoundedRectangleBorder(
+         borderRadius: new BorderRadius.circular(100.0)),
+     onPressed: (){
+
+
+
+if(model.groupProduct[index]["qty"] >1){
+
+      decr(model.groupProduct[index]["product_id"],index);
+
+
+}
+
+
+
+    },
 
         child: Text('-',textAlign: TextAlign.center,style: new TextStyle(fontSize: 35,color: Colors.white),),
       ),
@@ -713,9 +1220,19 @@ color: Colors.red,
 
 
 
-RaisedButton(onPressed: null,
+RaisedButton(
+   shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5.0),
+                
+              ),
+  color: Colors.red[400],
+  onPressed: (){
 
-child:Text("Remove"))
+remove(model.groupProduct[index]["product_id"]);
+
+  },
+
+child:Text("Remove",style: new TextStyle(color:Colors.white),))
 
   ],
 ),
@@ -736,21 +1253,6 @@ child:Text("Remove"))
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
               
             ),
 
@@ -760,7 +1262,27 @@ child:Text("Remove"))
                    
         }),
 
- ),
+ );
+
+
+              })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         

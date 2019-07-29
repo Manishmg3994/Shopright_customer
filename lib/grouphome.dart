@@ -97,7 +97,11 @@ else{
   color: Colors.pink,
   size: 50.0,
   
-):nodata?Center(child:Text("No one Group created yet now..")): new Column(
+):
+
+// nodata?Center(child:Text("No one Group created yet now..")): 
+
+new Column(
         children: <Widget>[
 
           
@@ -106,7 +110,11 @@ else{
                 return
        
           new Expanded(
-            child: new ListView.builder
+            child:
+nodata?Center(child:Text("No one Group created yet now..")): 
+            
+            
+             new ListView.builder
               (
                 itemCount: model.group.length,
                 itemBuilder: (BuildContext ctxt, int Index) {
