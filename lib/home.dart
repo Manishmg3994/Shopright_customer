@@ -5,7 +5,7 @@ import 'productview.dart';
 import 'Cart.dart';
 import 'myorders.dart';
 import 'location.dart';
-import 'dart:convert';
+import 'dart:async';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:grouped_buttons/grouped_buttons.dart';
@@ -81,6 +81,10 @@ var myname= "",pincode="",area="",mobile="",token="",myid="";
 
 var loading=true;
 var discount_list;
+int discount_inc =0;
+
+var discount_time =[];
+var discount_time_diff =[];
 var base_url = "";
 var cart_qty ;
 var payment ;
@@ -92,6 +96,45 @@ var payment ;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
+
+
+
+void TimeCounter(){
+
+  Timer.periodic(Duration(seconds: 1), (timer) {
+
+for(int i = 0;i<discount_time.length;i++){
+
+  var date = new DateTime.now();
+
+var diff  = discount_time[i].difference(date);
+
+setState(() {
+discount_time_diff[i]=diff;
+  
+});
+
+
+}
+
+
+
+
+
+
+  // print(date.difference( discount_time[1]));
+
+
+
+});
+
+}
+
+
+
+
+
+
 
 
 void HomeData(base_url) async {
@@ -115,7 +158,7 @@ void HomeData(base_url) async {
     }
     ,options: Options(headers: {"Authorization": token})
     );
-    print(response.data["cart"]);
+    // print(response.data["cart"]);
     
 
 
@@ -126,6 +169,34 @@ void HomeData(base_url) async {
 
 
  model.SetCart(response.data["cart"] as List);
+
+
+
+for(int i = 0;i<response.data["discount"].length;i++){
+
+  var date = new DateTime.now();
+
+discount_time.add(new DateTime(date.year, date.month, date.day+1, date.hour+i+1,  date.minute,  date.second));
+
+
+// var diff  = date.difference(new DateTime(date.year, date.month, date.day, date.hour+i+1,  date.minute,  date.second));
+discount_time_diff.add("00:00:00");
+
+if(i == response.data["discount"].length-1){
+
+TimeCounter();
+
+
+
+}
+
+}
+
+
+
+
+
+
      
    
 setState(() {
@@ -209,7 +280,7 @@ model.setToken(token);
   @override
  
   void initState() {
-  
+
     getSharedPreferences();
     super.initState();
   }
@@ -349,6 +420,9 @@ CounterModel model = ScopedModel.of(context);
                     new IconButton(icon: new Icon(Icons.shopping_cart),
                       onPressed: () {
                         _scaffoldKey.currentState.openEndDrawer();
+
+                        print(discount_time);
+                        print(discount_time_diff);
                       },
                     ),
                   
@@ -844,7 +918,8 @@ Container(
       ( response.data["discount"] as List).map(
         (data) {
         
-       
+        // discount_inc++;
+        // print(data);
           return 
             
 new GestureDetector(
@@ -896,7 +971,14 @@ Padding(padding: EdgeInsets.only(right:10),
 
 child:
 
-new Text('',style: new TextStyle(),)
+// Timer.periodic(Duration(seconds: 5), (timer) {
+//   print(DateTime.now());
+
+//   return 
+// }),
+
+new Text(discount_time_diff[response.data["discount"].indexOf(data)].toString().substring(0,8),style: new TextStyle(),)
+
  ),
 
 
@@ -962,7 +1044,7 @@ mainAxisAlignment: MainAxisAlignment.spaceAround,
           );
        
       
-       
+      
         },
       
       
@@ -1025,9 +1107,7 @@ Container(
   size: 50.0,
   
 ):response.data["cashback"].length<=0?Text("No cashback",textAlign: TextAlign.center,): CarouselSlider(
-    height: 270,
-  
-      viewportFraction: 0.65,
+    height: 270, viewportFraction: 0.65,
       aspectRatio: 2.0,
       // autoPlay: true,
       enableInfiniteScroll:response.data["cashback"].length==1? false:true,
@@ -1040,7 +1120,7 @@ Container(
       ( response.data["cashback"] as List).map(
         (data) {
         
-       
+        // discount_inc++;       
           return 
             
 new GestureDetector(
@@ -1087,12 +1167,15 @@ new Container(
   child: new Text(" "+data["cashback_percent"].toString()+"% off " ,style: new TextStyle(),),
 ),
 
+// Timer.periodic(Duration(seconds: 5), (timer) {
+//   print(DateTime.now());
+// }),
 
 Padding(padding: EdgeInsets.only(right:10),
 
 child:
 
-new Text('',style: new TextStyle(),)
+new Text(discount_time_diff[response.data["cashback"].indexOf(data)].toString().substring(0,8),style: new TextStyle(),)
  ),
 
 
@@ -1129,9 +1212,6 @@ Row(
 mainAxisAlignment: MainAxisAlignment.spaceAround,
 
   children: <Widget>[
-
-
-
 
     new Text(data["price"].toString(),style: new TextStyle(fontSize: 18,),),
     new Text(data["unit"].toString(),style: new TextStyle(fontSize: 18,color: Colors.grey),),

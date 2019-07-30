@@ -41,7 +41,7 @@ void productx(idx) async {
 CounterModel model= ScopedModel.of(context);
    
 Response response
-    = await Dio().post(base_url+"api/removecart",data: {
+    = await Dio().post(model.url+"api/removecart",data: {
        "customer_id":model.myid,
         "product_id":idx,
     

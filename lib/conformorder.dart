@@ -5,6 +5,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:toast/toast.dart';
 import 'scopedmodel.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_upi/flutter_upi.dart';
 
 import 'package:scoped_model/scoped_model.dart';
 import 'scopedmodel.dart';
@@ -40,7 +41,8 @@ CounterModel model = ScopedModel.of(context);
  "name": myname,
             "mobile": mobile,
             "address": door+","+adr1+","+adr2+","+pincode,
-            "pay_method": "cash on delivery"
+            "pay_method": payOption,
+            "transaction_id":transaction_id
             
 }
 
@@ -56,6 +58,7 @@ CounterModel model = ScopedModel.of(context);
 if(response1.data["status"]){
 
  showDialog(
+   barrierDismissible: true,
       context: context,
       builder: (BuildContext context) {
         // return object of type Dialog
@@ -108,14 +111,21 @@ else{
 String token,myid,myname,mobile,area,pincode,door,adr1,adr2;
   var loading = true;
   var payment = false;
-  final String address = "Chabahil, Kathmandu";
-List<String> imglist = ["dfcdf","dfcdf","dfcdf","dfcdf","dfcdf",];
-  final String phone="9818522122";
+  var payOption = "";
+var transaction_id = "";
+//   final String address = "Chabahil, Kathmandu";
+// List<String> imglist = ["dfcdf","dfcdf","dfcdf","dfcdf","dfcdf",];
+//   final String phone="9818522122";
+
+
 Response response;
 
   final double total = 500;
 
   final double delivery = 0.00;
+
+   Future _initiateTransaction;
+  GlobalKey<ScaffoldState> _key;
 
 // TextEditingController _controller1 = new TextEditingController();
 
@@ -129,11 +139,94 @@ Response response;
   void initState() {
    
 getSharedPreferences();
+    _key = GlobalKey<ScaffoldState>();
 
     super.initState();
   }
 
 
+ Future<String> initTransaction() async {
+    String responseUpi = await FlutterUpi.initiateTransaction(
+        app: FlutterUpiApps.GooglePay,
+        pa: "sasaw.wahab12@oksbi",
+        pn: "Wahab Sasaw",
+        tr: "shopright",
+        tn: "Pay to Shopright",
+        am: response.data["grand_total"].toString(),
+        cu: "INR",
+        url: "https://www.google.com");
+    // print(response);
+
+
+        
+                     
+
+                      switch (responseUpi.toString()) {
+                        case 'app_not_installed':
+               
+                 Toast.show("Application not installed.",context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+
+                          break;
+                        case 'invalid_params':
+                         
+                 Toast.show("Request parameters are wrong",context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+
+                          break;
+                        case 'user_canceled':
+                 Toast.show("User canceled the flow",context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+                        
+                          break;
+                        case 'null_response':
+                 Toast.show("No data received",context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+
+                        
+                          break;
+                        default:
+                          {
+                           
+                           
+                           
+   FlutterUpiResponse flutterUpiResponse = FlutterUpiResponse(responseUpi);
+// print("flutterUpiResponse.txnId"); // prints transaction id
+// print(flutterUpiResponse.txnId); // prints transaction id
+// print("flutterUpiResponse.txnRef"); //prints transaction ref 
+// print(flutterUpiResponse.txnRef); //prints transaction ref 
+// print("flutterUpiResponse.Status"); //prints transaction status
+// print(flutterUpiResponse.Status); //prints transaction status
+// print("flutterUpiResponse.ApprovalRefNo"); //prints approval reference number
+// print(flutterUpiResponse.ApprovalRefNo); //prints approval reference number
+// print("flutterUpiResponse.responseCode");
+// print(flutterUpiResponse.responseCode);
+                          
+
+
+
+                          if(flutterUpiResponse.Status == "SUCCESS"){
+
+                            setState(() {
+                             transaction_id =  flutterUpiResponse.txnId;
+                            });
+
+
+                            ConformOrder();
+
+
+
+                          }
+                          
+                          }
+                      }
+                   
+                
+
+
+
+// print("flutterUpiResponse"); // prints transaction id
+
+
+
+    return responseUpi;
+  }
 
 
 
@@ -379,6 +472,9 @@ Padding(padding: EdgeInsets.all(5),),
 
 // ),
 
+
+           
+
  Padding(padding: EdgeInsets.all(5),),
        new Row(
 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -454,6 +550,7 @@ RadioButtonGroup(
   onSelected: (String selected) {
 
     setState(() {
+      payOption = selected;
      payment = true; 
     });
   },
@@ -471,7 +568,36 @@ Padding(padding: EdgeInsets.all(8),),
 
                     if(payment){
 
-                    ConformOrder();
+
+
+                      if(payOption == "Google Pay"){
+ _initiateTransaction =
+                      initTransaction();
+
+
+                      }
+
+
+                      else if(payOption ==  "Wallet"){
+
+
+                 Toast.show("This option not available now..",context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+
+                      }
+
+
+ else if(payOption == "Cash on Delivery"){
+
+ ConformOrder();
+ }
+
+                   
+
+
+
+
+
+
 
                     }
 
@@ -510,7 +636,63 @@ Padding(padding: EdgeInsets.all(8),),
                     color: Colors.white
                   ),),
                 ),
-              )
+              ),
+           
+           
+           
+           
+           
+            //  FutureBuilder(
+            //       future: _initiateTransaction,
+            //       builder: (BuildContext ctx, AsyncSnapshot snapshot) {
+                    
+            //         if (snapshot.connectionState == ConnectionState.waiting ||
+            //             snapshot.data == null) {
+            //           return Text("Processing or Yet to start...");
+            //         } else {
+                     
+
+            //           switch (snapshot.data.toString()) {
+            //             case 'app_not_installed':
+            //     return
+            //      Toast.show("Application not installed.",context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+
+            //               break;
+            //             case 'invalid_params':
+                         
+            //      Toast.show("Request parameters are wrong",context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+
+            //               break;
+            //             case 'user_canceled':
+            //      Toast.show("User canceled the flow",context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+                        
+            //               break;
+            //             case 'null_response':
+            //      Toast.show("No data received",context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+
+                        
+            //               break;
+            //             default:
+            //               {
+            //                 FlutterUpiResponse flutterUpiResponse =
+            //                     FlutterUpiResponse(snapshot.data);
+            //                 print(flutterUpiResponse.txnId);
+            //                 print(flutterUpiResponse.Status);
+            //                 print(flutterUpiResponse.ApprovalRefNo ?? "");
+            //                 print(flutterUpiResponse.responseCode);
+                           
+                          
+                          
+            //               }
+            //           }
+            //         }
+            //       },
+            //     ),
+    
+           
+           
+           
+           
             ],
           ),
         );
