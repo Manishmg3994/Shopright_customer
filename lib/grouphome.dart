@@ -119,49 +119,73 @@ nodata?Center(child:Text("No one Group created yet now..")):
                 itemCount: model.group.length,
                 itemBuilder: (BuildContext ctxt, int Index) {
                   return 
-                  
-                  
-                  Padding(padding: EdgeInsets.all(10),child: 
 
-GestureDetector(
+                  Column(
 
-  onTap: (){
-
-    model.setGroupid(model.group[Index]["_id"]);
+                    children: <Widget>[
+    new ListTile(
+             
+              trailing:Icon(Icons.arrow_forward_ios,color:Colors.black),
+              leading: Icon(Icons.assignment,color: Colors.deepPurple,),
+              
+              title: new Text(model.group[Index]["name"],style: new TextStyle(fontSize: 22,color: Colors.brown),),
+             onTap: () {
+               
+                model.setGroupid(model.group[Index]["_id"]);
                 Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new GroupView()));
 
+             }
+            ),
+        
+        Divider()
+
+                    ],
+                  );
 
 
-
-  },
-
-  child:        GradientCard(
-                                    shape: RoundedRectangleBorder(
-                borderRadius:BorderRadius.only(topRight: const Radius.circular(40.0),bottomRight: const Radius.circular(40.0),
-                topLeft: const Radius.circular(40.0),bottomLeft: const Radius.circular(40.0),
-                ),
-              ),
-                    
-    gradient: Gradients.deepSpace,
-    shadowColor: Gradients.coldLinear.colors.last.withOpacity(0.35),
-    elevation: 8,
-
-    child: Padding(padding: EdgeInsets.only(top:30,bottom: 25),child: GradientText(
-  model.group[Index]["name"],
-  shaderRect: Rect.fromLTWH(0.0, 0.0, 50.0, 50.0),
-  gradient: Gradients.haze,
-  style: TextStyle(fontSize: 25.0,fontWeight: FontWeight.bold,),
-  textAlign: TextAlign.center,
-),),
-)
                   
-),
+                  
+//                   Padding(padding: EdgeInsets.all(10),child: 
+
+// GestureDetector(
+
+//   onTap: (){
+
+//     model.setGroupid(model.group[Index]["_id"]);
+//                 Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new GroupView()));
+
+
+
+
+//   },
+
+//   child:        GradientCard(
+//                                     shape: RoundedRectangleBorder(
+//                 borderRadius:BorderRadius.only(topRight: const Radius.circular(40.0),bottomRight: const Radius.circular(40.0),
+//                 topLeft: const Radius.circular(40.0),bottomLeft: const Radius.circular(40.0),
+//                 ),
+//               ),
+                    
+//     gradient: Gradients.deepSpace,
+//     shadowColor: Gradients.coldLinear.colors.last.withOpacity(0.35),
+//     elevation: 8,
+
+//     child: Padding(padding: EdgeInsets.only(top:30,bottom: 25),child: GradientText(
+//   model.group[Index]["name"],
+//   shaderRect: Rect.fromLTWH(0.0, 0.0, 50.0, 50.0),
+//   gradient: Gradients.haze,
+//   style: TextStyle(fontSize: 25.0,fontWeight: FontWeight.bold,),
+//   textAlign: TextAlign.center,
+// ),),
+// )
+                  
+// ),
 
 
 
 
                          
-                  );
+//                   );
                   
    
                 }

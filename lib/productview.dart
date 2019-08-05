@@ -457,7 +457,7 @@ final key = new GlobalKey<ScaffoldState>();
             // width: MediaQuery.of(context).size.width * 0.55,
           ),
 
-backgroundColor: Colors.grey[200],
+backgroundColor:loading?Colors.grey[200]:data[0]["on_move"]>0? Colors.grey[200]:Colors.grey[500],
 
 body:
 
@@ -675,7 +675,7 @@ Padding(padding: EdgeInsets.all(10),),
 
             new Container ( decoration: BoxDecoration(boxShadow:  [
               BoxShadow(
-                color: Colors.grey[100],
+                color: data[0]["on_move"]>0? Colors.grey[200]:Colors.grey[500],
                 blurRadius: 30.0, // has the effect of softening the shadow
                 spreadRadius: 5.0, // has the effect of extending the shadow
                 offset: Offset(
@@ -734,7 +734,17 @@ model.SetQty(qty);
                 
                 
                 
-                cart?  new RaisedButton(color: Colors.amber[200], shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(60)), padding: EdgeInsets.all(15),
+            !(data[0]["on_move"]>0)?new RaisedButton(color: Colors.amber[200], shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(60)), padding: EdgeInsets.all(15),
+                      onPressed: (){
+                        // _cartBloc.addOrderToCart(widget.product, _quantity);
+                        // Navigator.of(context).pop();
+                 Toast.show("Out of Stock",context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+                        
+                      },
+                      child: new Text("Out of Stock", style: TextStyle(fontWeight: FontWeight.bold))
+                  ):
+   cart? 
+             new RaisedButton(color: Colors.amber[200], shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(60)), padding: EdgeInsets.all(15),
                       onPressed: (){
                         // _cartBloc.addOrderToCart(widget.product, _quantity);
                         // Navigator.of(context).pop();

@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
-// import 'package:provider/provider.dart';
-// import 'states.dart';
-import 'package:dio/dio.dart';
+import 'package:animated_card/animated_card.dart';
 
-
-import 'scopedmodel.dart';
-import 'package:scoped_model/scoped_model.dart';
 class Testing extends StatefulWidget {
   
 
@@ -14,38 +9,7 @@ class Testing extends StatefulWidget {
 }
 
 class _TestingState extends State<Testing> {
-void Search(context,key) async {
- Response response;
 
-   var dio = Dio();
-  try {
-   
-    // print("response.data");
-    CounterModel model = ScopedModel.of(context);
-    // print(model.token);
-    // print(model.pincode);
-    // print(model.area);
- 
- 
-     response = await dio.post(model.url+"api/search",
-     
-     data: {
-       "key":key,
-        "pincode":model.pincode,
-        "area":model.area
-    
-    }
-    ,options: Options(headers: {"Authorization": model.token})
-    );
-
-// model.SetSearch(response.data["result"][0]["products"]);
-
-print(response.data);
-    
-  } catch (e) {
-    print(e);
-  }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -55,33 +19,7 @@ print(response.data);
     return Scaffold(
          appBar: new AppBar(
         
-        backgroundColor: Colors.white,
-        title:
-         new TextField(
-          // controller: _filter,
-          onChanged: (zzz){
-
-print(zzz);
-
-Search(context, zzz);
-
-          },
-          style: new TextStyle(color: Colors.black87,fontSize: 18),
-          decoration: new InputDecoration(
-            border: InputBorder.none,
-            hintText: 'Search the products.....',
-            fillColor: Colors.black,
-            hintStyle: TextStyle(color: Colors.grey[500]),
-          ),
-
-          
-        )
-
-       
-
-        
-        
-     
+       title: Text("erderf"),
 
 
 
@@ -89,30 +27,24 @@ Search(context, zzz);
      
       ),
 
-  body:  Center(
-    // children: <Widget>[
-child:
-
-ListView.builder(
-        itemCount:5,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text("fytf",style: new TextStyle(fontSize: 15),),
-leading:  Text(""),
-            // trailing: Text("Veg"),
-            onTap: (){
-              
-
-              print("object");
-            },
-          );
-        },
-      )
+  body: 
+  
 
 
+   ListView.builder(
+            itemCount: 6,
+            itemBuilder: (BuildContext cont, int ind) {
+              return AnimatedCard(
+    direction: AnimatedCardDirection.left, //Initial animation direction 
+    initDelay: Duration(milliseconds: 1), //Delay to initial animation
+    duration: Duration(seconds: 3), //Initial animation duration
+    // onRemove: () => lista.removeAt(index), //Implement this action to active dismiss
 
-    // ],
-  )
-    );
+    child: Text("data"),
+);
+
+            })
+  
+  );
   }
 }

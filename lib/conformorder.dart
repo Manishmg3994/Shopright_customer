@@ -56,6 +56,7 @@ CounterModel model = ScopedModel.of(context);
 
   
 if(response1.data["status"]){
+                Navigator.of(context).pushReplacement(new MaterialPageRoute(builder: (BuildContext context) => new AppHome()));
 
  showDialog(
    barrierDismissible: true,
@@ -65,19 +66,6 @@ if(response1.data["status"]){
         return AlertDialog(
           title: new Text("Ordered successfully"),
           content: new Text("Thank you for order"),
-          actions: <Widget>[
-            // usually buttons at the bottom of the dialog
-            new FlatButton(
-              child: new Text("Ok"),
-              onPressed: () {
-                Navigator.of(context).pushReplacement(new MaterialPageRoute(builder: (BuildContext context) => new AppHome()));
-
-                // Navigator.of(context).pop();
-
-                // print("hfjh");
-              },
-            ),
-          ],
         );
       },
     );

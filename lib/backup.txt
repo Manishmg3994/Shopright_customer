@@ -1,0 +1,104 @@
+         new GestureDetector(
+
+child:new Column(
+
+  children: <Widget>[
+
+   
+  new Card(
+             shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0),
+                
+              ),
+elevation: 5.0,
+// semanticContainer: true,
+          clipBehavior: Clip.antiAliasWithSaveLayer,
+  margin:  EdgeInsets.all(12.0),
+
+
+
+child: new Column(
+
+
+  children: <Widget>[
+
+
+
+    Padding ( padding: EdgeInsets.only(top: 25),),
+
+
+
+// Hero(
+
+//   tag: 'imgsr',
+
+
+
+Image.network(alldata[index]["img_url"],
+            // fit: BoxFit.fill,
+         
+           height: 100,
+          ),
+
+// ),
+ 
+
+
+
+
+    Padding(padding: EdgeInsets.only(top: 15),),
+
+         
+   Padding(padding: EdgeInsets.only(top: 15,left: 10),
+ child: Align(
+
+  alignment: Alignment.centerLeft,
+
+          child:new Text('₹ '+alldata[index]["price"].toString(),style: new TextStyle(fontSize: 20,fontWeight: FontWeight.bold),textAlign: TextAlign.left,)),
+
+   ),
+  Padding(padding: EdgeInsets.only(top: 8,left: 10),
+ child: Align(
+
+  alignment: Alignment.center,
+
+          child:new Text(alldata[index]["name"],style: new TextStyle( fontSize: 16,fontWeight: FontWeight.bold,color: Colors.brown),textAlign: TextAlign.left,
+          overflow: TextOverflow.ellipsis,
+    maxLines: 1,
+          
+          
+          )),
+
+   ),
+
+  Padding(padding: EdgeInsets.only(top: 3,right: 10,bottom: 10),
+ child: Align(
+
+  alignment: Alignment.bottomRight,
+
+          child:new Text(alldata[index]["unit"],style: new TextStyle(fontSize: 14),textAlign: TextAlign.left,)),
+
+   ),
+
+
+
+
+  ],
+),
+              
+            ),
+// new Text('hjgyugh',style: new TextStyle(fontSize: 15,fontWeight: FontWeight.bold,  color: Colors.green),)
+
+  ],
+),
+ 
+            onTap: () {
+             print(alldata[index]["_id"]);
+model.setProductid(alldata[index]["_id"]);
+
+            // Navigator.of(context).pop();
+                Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new ProductView()));
+               
+            },
+          );
+

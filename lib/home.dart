@@ -158,7 +158,7 @@ void HomeData(base_url) async {
     }
     ,options: Options(headers: {"Authorization": token})
     );
-    // print(response.data["cart"]);
+    print(response.data["cart"]);
     
 
 
@@ -233,7 +233,7 @@ setState(() {
     }
     
   } catch (e) {
-    print(e);
+    //print(e);
   }
 }
 
@@ -249,12 +249,12 @@ setState(() {
 getSharedPreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
   
-    // print("token " +prefs.getString("token"));
-    // print("myid "+prefs.getString("myid"));
-    // print("myname "+prefs.getString("myname"));
-    // print("mobile "+prefs.getString("mobile"));
-    // print("pincode "+prefs.getString("pincode"));
-    // print("area "+prefs.getString("area"));
+    // //print("token " +prefs.getString("token"));
+    // //print("myid "+prefs.getString("myid"));
+    // //print("myname "+prefs.getString("myname"));
+    // //print("mobile "+prefs.getString("mobile"));
+    // //print("pincode "+prefs.getString("pincode"));
+    // //print("area "+prefs.getString("area"));
 CounterModel model = ScopedModel.of(context);
  
 
@@ -270,7 +270,7 @@ CounterModel model = ScopedModel.of(context);
  });
 HomeData(model.url);
 
-print(myid);
+//print(myid);
 model.setMyid(myid);
 model.setArea(area);
 model.setPincode(pincode);
@@ -382,7 +382,7 @@ CounterModel model = ScopedModel.of(context);
 //           )
 //         ),
 
-// onTap: ()=>print('cdfg'),
+// onTap: ()=>//print('cdfg'),
 
 //         ),
         
@@ -421,8 +421,8 @@ CounterModel model = ScopedModel.of(context);
                       onPressed: () {
                         _scaffoldKey.currentState.openEndDrawer();
 
-                        print(discount_time);
-                        print(discount_time_diff);
+                        //print(discount_time);
+                        //print(discount_time_diff);
                       },
                     ),
                   
@@ -621,7 +621,7 @@ new ListTile(
     " தமிழ் (Tamil)",
   ],
   picked: "Option 2",
-  onSelected: (String selected) => print(selected)
+  // onSelected: (String selected) => //print(selected)
 ),
            
             ),
@@ -714,7 +714,7 @@ body:
 //        FlatButton(
 
 
-//          onPressed: (){print('Change Location');
+//          onPressed: (){//print('Change Location');
       
 
 //                    Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new Location()));
@@ -838,7 +838,7 @@ padding: EdgeInsets.only(top:15),
 GestureDetector(
                 onTap: (){ 
 getSharedPreferences();
-                  // print(model.cart.length.toString());
+                  // //print(model.cart.length.toString());
                   // model.setProductlist(1);
                   // Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new ProductList()));
  
@@ -919,7 +919,7 @@ Container(
         (data) {
         
         // discount_inc++;
-        // print(data);
+        // //print(data);
           return 
             
 new GestureDetector(
@@ -972,7 +972,7 @@ Padding(padding: EdgeInsets.only(right:10),
 child:
 
 // Timer.periodic(Duration(seconds: 5), (timer) {
-//   print(DateTime.now());
+//   //print(DateTime.now());
 
 //   return 
 // }),
@@ -1039,7 +1039,7 @@ mainAxisAlignment: MainAxisAlignment.spaceAround,
             onTap: (){
 
 
-              print(data["name"]);
+              //print(data["name"]);
             },
           );
        
@@ -1168,7 +1168,7 @@ new Container(
 ),
 
 // Timer.periodic(Duration(seconds: 5), (timer) {
-//   print(DateTime.now());
+//   //print(DateTime.now());
 // }),
 
 Padding(padding: EdgeInsets.only(right:10),
@@ -1233,7 +1233,7 @@ mainAxisAlignment: MainAxisAlignment.spaceAround,
             onTap: (){
 
 
-              print(data["name"]);
+              //print(data["name"]);
             },
           );
        

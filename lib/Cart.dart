@@ -259,6 +259,8 @@ new Column(
 
    
   new Card(
+
+    color:!(stream.cart[index]["product_available"]) ?Colors.grey[600]:!(stream.cart[index]["my_qty"]<=stream.cart[index]["on_move"]) ?Colors.grey[400]:Colors.white,
              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15.0),
                 
@@ -276,6 +278,7 @@ child: new Column(
 
 children: <Widget>[
 
+  Padding(padding: EdgeInsets.all(5),),
 
 
   Row(
@@ -399,7 +402,13 @@ Padding(padding: EdgeInsets.only(left: 10)),
 color: Colors.green,
  shape: new RoundedRectangleBorder(
          borderRadius: new BorderRadius.circular(100.0)),
-        onPressed:  staTus[index]?null:(){
+        onPressed:!(stream.cart[index]["product_available"])?null: 
+        
+        
+        (stream.cart[index]["my_qty"]> stream.cart[index]["on_move"])?null:
+        
+        
+         staTus[index]?null:(){
 
           if(stream.cart[index]["my_qty"]<stream.cart[index]["on_move"]){
 
@@ -443,7 +452,7 @@ child:                                                     staTus[index]?SpinKit
 color: Colors.blue,
 shape: new RoundedRectangleBorder(
          borderRadius: new BorderRadius.circular(100.0)),
-        onPressed: staTus[index]?null: (){
+        onPressed:!(stream.cart[index]["product_available"])?null: staTus[index]?null: (){
 
           if(stream.cart[index]["my_qty"] > 1){
 
@@ -516,13 +525,23 @@ productx(stream.cart[index]["product_id"]);
   ],
 ),
 
+!(stream.cart[index]["product_available"] )?
 
+Padding(padding: EdgeInsets.only(top: 3,bottom: 5),
+child:
 
+    Text("-Out of Stock-",style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold,fontSize: 18),textAlign: TextAlign.right,)
+):
+    
  
  
+ !(stream.cart[index]["my_qty"]<=stream.cart[index]["on_move"]) ?
  
- 
- 
+ Padding(padding: EdgeInsets.only(top: 3,bottom: 5),
+child:
+
+    Text("Out of Qty. Please decrease Quantity",style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold,fontSize: 13),textAlign: TextAlign.right,)
+):
   Padding(padding: EdgeInsets.all(5),)
 ],
 

@@ -10,6 +10,7 @@ import 'package:scoped_model/scoped_model.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:animated_card/animated_card.dart';
 
 
 class ProductList extends StatefulWidget {
@@ -248,6 +249,7 @@ var search = false;
   Widget build(BuildContext context) {
 CounterModel model = ScopedModel.of(context);
 
+
        
         // final counter = Provider.of<States>(context);
 
@@ -433,26 +435,50 @@ no_data?Center(
 
  
   new Expanded(
+
+    
   
-child:new GridView.builder(
+child:
+
+ OrientationBuilder(
+        builder: (context, orientation) {
+          return
+
+new GridView.builder(
         itemCount: alldata.length,
         gridDelegate:
-            new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2,
+            new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: orientation == Orientation.portrait ? 2 : 3,
             
-             childAspectRatio: MediaQuery.of(context).size.height/880,
-              
-              ),
+             childAspectRatio:(orientation == Orientation.portrait) ? 
+             
+             
+             MediaQuery.of(context).size.width /
+              (MediaQuery.of(context).size.height-170 ):
+              MediaQuery.of(context).size.width /
+              (MediaQuery.of(context).size.height+400 )
+            ),
         itemBuilder: (BuildContext context, int index) {
           return 
-          
+
+// Container(color: Colors.blue,
+// height: 100,);
+
+   
+          AnimatedCard(
+    direction:index.isEven? AnimatedCardDirection.left:AnimatedCardDirection.right, //Initial animation direction 
+    initDelay: Duration(milliseconds: 0), //Delay to initial animation
+    duration: Duration(seconds: 1), //Initial animation duration
+    // onRemove: () => lista.removeAt(index), //Implement this action to active dismiss
+
+    child: 
           new GestureDetector(
 
-child:new Column(
-
-  children: <Widget>[
+child:
 
    
   new Card(
+
+    color:alldata[index]["on_move"]>0? Colors.white: Colors.grey[400],
              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15.0),
                 
@@ -471,8 +497,12 @@ child: new Column(
 
 
 
-    Padding ( padding: EdgeInsets.only(top: 25),),
+    Padding ( padding: EdgeInsets.only(top: 15),),
 
+alldata[index]["on_move"]>0?Text("") :
+    Text("Out of Stock",style: TextStyle(color:Colors.red[500],fontWeight: FontWeight.bold,fontSize: 18),textAlign: TextAlign.right,),
+
+    Padding ( padding: EdgeInsets.only(top: 15),),
 
 
 // Hero(
@@ -495,21 +525,38 @@ Image.network(alldata[index]["img_url"],
 
     Padding(padding: EdgeInsets.only(top: 15),),
 
+
+Row(
+mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  children: <Widget>[
+
+          new Text('  ₹ '+alldata[index]["price"].toString(),style: new TextStyle(fontSize: 20,fontWeight: FontWeight.bold),textAlign: TextAlign.left,),
+
+          new Text(alldata[index]["unit"]+"   ",style: new TextStyle(fontSize: 14),textAlign: TextAlign.left,),
+
+
+
+
+  ],
+),
          
-   Padding(padding: EdgeInsets.only(top: 15,left: 10),
- child: Align(
+//    Padding(padding: EdgeInsets.only(top: 15,left: 10),
+//  child: Align(
 
-  alignment: Alignment.centerLeft,
+//   alignment: Alignment.centerLeft,
 
-          child:new Text('₹ '+alldata[index]["price"].toString(),style: new TextStyle(fontSize: 20,fontWeight: FontWeight.bold),textAlign: TextAlign.left,)),
+//           child:new Text('₹ '+alldata[index]["price"].toString(),style: new TextStyle(fontSize: 20,fontWeight: FontWeight.bold),textAlign: TextAlign.left,)),
 
-   ),
+//    ),
+ 
+ 
+ 
   Padding(padding: EdgeInsets.only(top: 8,left: 10),
  child: Align(
 
   alignment: Alignment.center,
 
-          child:new Text(alldata[index]["name"],style: new TextStyle( fontSize: 16,fontWeight: FontWeight.bold,color: Colors.brown),textAlign: TextAlign.left,
+          child:new Text(alldata[index]["name"],style: new TextStyle( fontSize: 18,fontWeight: FontWeight.bold,color: Colors.brown[800]),textAlign: TextAlign.left,
           overflow: TextOverflow.ellipsis,
     maxLines: 1,
           
@@ -518,14 +565,14 @@ Image.network(alldata[index]["img_url"],
 
    ),
 
-  Padding(padding: EdgeInsets.only(top: 3,right: 10,bottom: 10),
- child: Align(
+//   Padding(padding: EdgeInsets.only(top: 3,right: 10,bottom: 10),
+//  child: Align(
 
-  alignment: Alignment.bottomRight,
+//   alignment: Alignment.bottomRight,
 
-          child:new Text(alldata[index]["unit"],style: new TextStyle(fontSize: 14),textAlign: TextAlign.left,)),
+//           child:new Text(alldata[index]["unit"],style: new TextStyle(fontSize: 14),textAlign: TextAlign.left,)),
 
-   ),
+//    ),
 
 
 
@@ -536,8 +583,7 @@ Image.network(alldata[index]["img_url"],
             ),
 // new Text('hjgyugh',style: new TextStyle(fontSize: 15,fontWeight: FontWeight.bold,  color: Colors.green),)
 
-  ],
-),
+ 
  
             onTap: () {
              print(alldata[index]["_id"]);
@@ -547,12 +593,21 @@ model.setProductid(alldata[index]["_id"]);
                 Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new ProductView()));
                
             },
+          )
+
+
           );
-
-
-
           
-        }),)
+        });
+        
+        })
+        
+        ),
+
+
+        
+
+
 
 
   
